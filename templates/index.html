@@ -11,6 +11,7 @@
         <h1 class="my-4">Stock Data</h1>
         <p>Total Unique Tickers in Database: <strong>{{ tickers_count }}</strong></p>
 
+        <h2>OHLCV Data</h2>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -33,6 +34,13 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if meta_data %}
+        <h2>Meta Data for {{ meta_data['ticker'] }}</h2>
+        <p><strong>Financials:</strong> {{ meta_data['financials'] }}</p>
+        <p><strong>Dividends:</strong> {{ meta_data['dividends'] }}</p>
+        <p><strong>Analyst Recommendations:</strong> {{ meta_data['analyst_recommendations'] }}</p>
+        {% endif %}
     </div>
 </body>
 </html>
