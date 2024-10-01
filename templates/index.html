@@ -11,6 +11,26 @@
         <h1 class="my-4">Stock Data</h1>
         <p>Total Unique Tickers in Database: <strong>{{ tickers_count }}</strong></p>
 
+        <!-- Ticker Search Form -->
+        <form method="POST" action="/search">
+            <div class="mb-3">
+                <label for="tickerInput" class="form-label">Search Ticker</label>
+                <input type="text" name="ticker" class="form-control" id="tickerInput" placeholder="Enter ticker symbol">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        <!-- Display search result -->
+        {% if search_result %}
+        <div class="mt-4">
+            {% if search_result == 'not_found' %}
+            <div class="alert alert-danger">Ticker not found in the database.</div>
+            {% else %}
+            <div class="alert alert-success">Ticker <strong>{{ search_result }}</strong> found in the database.</div>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <h2>OHLCV Data</h2>
         {% if stocks %}
         <table class="table table-striped">
