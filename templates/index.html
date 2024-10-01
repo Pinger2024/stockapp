@@ -12,6 +12,7 @@
         <p>Total Unique Tickers in Database: <strong>{{ tickers_count }}</strong></p>
 
         <h2>OHLCV Data</h2>
+        {% if stocks %}
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -34,6 +35,9 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <p>No OHLCV data available</p>
+        {% endif %}
 
         {% if meta_data %}
         <h2>Meta Data for {{ meta_data['ticker'] }}</h2>
