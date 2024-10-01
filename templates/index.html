@@ -12,7 +12,7 @@
         <p>Total Unique Tickers in Database: <strong>{{ tickers_count }}</strong></p>
 
         <!-- Ticker Search Form -->
-        <form method="POST" action="/search">
+        <form method="POST" action="/">
             <div class="mb-3">
                 <label for="tickerInput" class="form-label">Search Ticker</label>
                 <input type="text" name="ticker" class="form-control" id="tickerInput" placeholder="Enter ticker symbol">
@@ -59,7 +59,7 @@
         <p>No OHLCV data available</p>
         {% endif %}
 
-        <!-- Link to the stock price chart -->
+        <!-- Stock Price Chart -->
         <h2>Stock Price Chart</h2>
         <img src="/plot" alt="Stock Prices for Selected Tickers">
     </div>
