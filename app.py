@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 import logging
@@ -34,4 +35,7 @@ def index():
     return render_template('index.html', tickers_count=tickers_count, stocks=stocks, search_result=search_result)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Get the port from the environment variable, default to 5000 if not set
+    port = int(os.environ.get("PORT", 5000))
+    # Run the app on all available IPs (0.0.0.0)
+    app.run(host="0.0.0.0", port=port)
