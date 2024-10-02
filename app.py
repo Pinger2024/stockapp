@@ -43,7 +43,7 @@ def index():
     highest_rs_stocks = list(indicators_collection.find().sort("rs_score", -1).limit(5))
 
     # Find the stocks making a new RS high
-    new_rs_high_stocks = list(indicators_collection.find({"rs_high": True}).sort("ticker", 1))
+    new_rs_high_stocks = list(indicators_collection.find({"new_rs_high": True}).sort("ticker", 1))
 
     return render_template('index.html', ticker=ticker, ohlcv_data=ohlcv_data, rs_score=rs_score,
                            highest_rs_stocks=highest_rs_stocks, new_rs_high_stocks=new_rs_high_stocks,
