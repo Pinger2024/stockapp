@@ -3,6 +3,7 @@ from pymongo import MongoClient
 import matplotlib.pyplot as plt
 import io
 import base64
+import os  # Add this import
 
 # MongoDB connection (hardcoded)
 client = MongoClient("mongodb://mongodb-9iyq:27017")
