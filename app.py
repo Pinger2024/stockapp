@@ -25,24 +25,26 @@ def index():
     rs_score = None
 
     if request.method == "POST":
-        ticker = request.form.get("ticker")
+        ticker = request.form.get("ticker").upper()
+        logging.debug(f"Ticker received: {ticker}")
 
         # Query for OHLCV data
         ohlcv_data = list(collection.find({"ticker": ticker}).sort("date", -1))
-        logging.debug(f"OHLCV Data for {ticker}: {ohlcv_data}")  # Logging output
+        logging.debug(f"OHLCV Data for {ticker}: {ohlcv_data}")
 
         # Query for RS score
         rs_score = indicators_collection.find_one({"ticker": ticker})
-        logging.debug(f"RS Score for {ticker}: {rs_score}")  # Logging output
+        logging.debug(f"RS Score for {ticker}: {rs_score}")
 
     return render_template("index.html", ohlcv_data=ohlcv_data, rs_score=rs_score, ticker=ticker)
 
 @app.route("/plot")
 def plot():
-    ticker = request.args.get("ticker")
+    ticker = request.args.get("ticker").upper()
+    logging.debug(f"Ticker for plot: {ticker}")
+
     ohlcv_data = list(collection.find({"ticker": ticker}).sort("date", 1))
 
-    # Check if data is available
     if not ohlcv_data:
         return Response("No data available for plotting.", status=404)
 
