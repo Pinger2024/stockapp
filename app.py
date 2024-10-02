@@ -1,93 +1,78 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request
 from pymongo import MongoClient
 import matplotlib.pyplot as plt
 import io
-import os
+import base64
 import logging
 from datetime import datetime
 
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+
+# Initialize Flask app
 app = Flask(__name__)
 
-# MongoDB connection (hardcoded)
+# MongoDB connection setup
 client = MongoClient("mongodb://mongodb-9iyq:27017")
 db = client['StockData']
 ohlcv_collection = db['ohlcv_data']
 indicators_collection = db['indicators']
 
-logging.basicConfig(level=logging.INFO)
-
+# Route for main page
 @app.route('/', methods=['GET', 'POST'])
 def index():
     ticker = None
-    ohlcv_data = []
+    ohlcv_data = None
     rs_score = None
-    highest_rs_stocks = []
-    new_rs_high_stocks = []
-    total_tickers = 0
+    total_tickers = ohlcv_collection.distinct('ticker')
+    total_tickers_count = len(total_tickers)
 
+    # Handle form submission to search for a specific ticker
     if request.method == 'POST':
         ticker = request.form['ticker'].upper()
-        if ticker:
-            # Fetch OHLCV data for the ticker
-            ohlcv_data = list(ohlcv_collection.find({"ticker": ticker}).sort("date", -1).limit(5))
-            logging.info(f"Fetched {len(ohlcv_data)} OHLCV records for {ticker}")
 
-            # Fetch RS Score for the ticker
-            indicator_data = indicators_collection.find_one({"ticker": ticker})
-            if indicator_data:
-                # Use the correct RS score field, e.g., 'rs_score' or 'rs_63'
-                rs_score = indicator_data.get("rs_score")  # Change this if your field is different
-                logging.info(f"RS Score for {ticker}: {rs_score}")
-            else:
-                rs_score = None  # Handle missing RS score
-                logging.info(f"No RS Score found for {ticker}")
+        # Retrieve OHLCV data for the ticker
+        ohlcv_data = list(ohlcv_collection.find({"ticker": ticker}).sort("date", -1))
 
-    # Get total unique tickers
-    total_tickers = len(ohlcv_collection.distinct("ticker"))
+        # Retrieve the RS score for the ticker
+        rs_entry = indicators_collection.find_one({"ticker": ticker})
+        if rs_entry:
+            rs_score = rs_entry.get('rs_score')
 
-    # Get top 5 highest RS score stocks (use the correct field)
+    # Find the top 5 stocks by RS score
     highest_rs_stocks = list(indicators_collection.find().sort("rs_score", -1).limit(5))
 
-    # Get top 5 stocks making new RS highs
-    new_rs_high_stocks = list(indicators_collection.find({"rs_new_high": True}).limit(5))
+    # Find the stocks making a new RS high
+    new_rs_high_stocks = list(indicators_collection.find({"rs_high": True}).sort("ticker", 1))
 
     return render_template('index.html', ticker=ticker, ohlcv_data=ohlcv_data, rs_score=rs_score,
                            highest_rs_stocks=highest_rs_stocks, new_rs_high_stocks=new_rs_high_stocks,
-                           total_tickers=total_tickers)
+                           total_tickers=total_tickers_count)
 
+
+# Route for plotting stock price chart
 @app.route('/plot')
 def plot():
     ticker = request.args.get('ticker')
-    if not ticker:
-        return "No ticker specified."
-    ticker = ticker.upper()
-
-    # Fetch OHLCV data from MongoDB
     ohlcv_data = list(ohlcv_collection.find({"ticker": ticker}).sort("date", 1))
-    if not ohlcv_data:
-        return "No data available for this ticker."
 
-    # Plotting the data using Matplotlib
-    dates = [entry['date'] for entry in ohlcv_data]
-    close_prices = [entry['close'] for entry in ohlcv_data]
+    dates = [data['date'] for data in ohlcv_data]
+    closes = [data['close'] for data in ohlcv_data]
 
-    fig, ax = plt.subplots()
-    ax.plot(dates, close_prices, label="Closing Prices", color='blue')
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Price")
-    ax.set_title(f"{ticker} Closing Prices")
-    ax.legend()
-    plt.xticks(rotation=45)
+    plt.figure(figsize=(10, 5))
+    plt.plot(dates, closes, label=f'{ticker} Closing Prices')
+    plt.xlabel('Date')
+    plt.ylabel('Price')
+    plt.title(f'{ticker} Stock Price')
+    plt.legend()
 
-    # Save the plot to a BytesIO object and return it as a PNG
     img = io.BytesIO()
-    plt.savefig(img, format='png', bbox_inches='tight')
-    plt.close(fig)
+    plt.savefig(img, format='png')
     img.seek(0)
-    return Response(img.getvalue(), mimetype='image/png')
+    plot_url = base64.b64encode(img.getvalue()).decode()
 
-if __name__ == "__main__":
-    # Get the port from the environment variable, default to 5000 if not set
-    port = int(os.environ.get("PORT", 5000))
-    # Run the app on all available IPs (0.0.0.0)
-    app.run(host="0.0.0.0", port=port)
+    return f'<img src="data:image/png;base64,{plot_url}">'
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
