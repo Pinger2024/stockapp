@@ -9,52 +9,56 @@
 <body>
     <div class="container">
         <h1 class="mt-5">Stock Data</h1>
-        <p>Total Unique Tickers in Database: {{ tickers_count }}</p>
+        <p>Total Unique Tickers in Database: {{ total_unique_tickers }}</p>
 
-        <form method="POST" class="form-inline my-3">
-            <input type="text" name="ticker" class="form-control mr-2" placeholder="Enter ticker symbol">
+        <form method="POST">
+            <div class="form-group">
+                <label for="ticker">Search Ticker</label>
+                <input type="text" class="form-control" id="ticker" name="ticker" placeholder="Enter ticker symbol">
+            </div>
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
 
-        {% if search_result == "not_found" %}
-            <div class="alert alert-danger">Ticker not found in the database.</div>
-        {% elif search_result %}
-            <div class="alert alert-success">Ticker <strong>{{ search_result['ticker'] }}</strong> found in the database.</div>
+        {% if ohlcv_data %}
+        <h3 class="mt-5">OHLCV Data</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Date</th>
+                    <th>Open</th>
+                    <th>Close</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in ohlcv_data %}
+                <tr>
+                    <td>{{ data.ticker }}</td>
+                    <td>{{ data.date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ data.open }}</td>
+                    <td>{{ data.close }}</td>
+                    <td>{{ data.volume }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No OHLCV data available</p>
+        {% endif %}
 
-            <h2>OHLCV Data</h2>
-            {% if stocks %}
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Ticker</th>
-                            <th>Date</th>
-                            <th>Open</th>
-                            <th>Close</th>
-                            <th>Volume</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stock in stocks %}
-                        <tr>
-                            <td>{{ stock['ticker'] }}</td>
-                            <td>{{ stock['date'] }}</td>
-                            <td>{{ stock['open'] }}</td>
-                            <td>{{ stock['close'] }}</td>
-                            <td>{{ stock['volume'] }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>No OHLCV data available</p>
-            {% endif %}
+        <h3 class="mt-5">Stock Price Chart</h3>
+        {% if ohlcv_data %}
+        <img src="/plot?ticker={{ ohlcv_data[0].ticker }}" alt="Stock Prices for Selected Tickers">
+        {% else %}
+        <p>No stock price chart available</p>
+        {% endif %}
 
-            <h2>RS Score</h2>
-            {% if rs_score %}
-                <div class="alert alert-info">RS Score: {{ rs_score }}</div>
-            {% else %}
-                <p>No RS Score available</p>
-            {% endif %}
+        <h3 class="mt-5">RS Score</h3>
+        {% if rs_score %}
+        <p>RS Score: {{ rs_score.rs_63 | round(2) }}</p>
+        {% else %}
+        <p>No RS Score available</p>
         {% endif %}
     </div>
 </body>
