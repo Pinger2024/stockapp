@@ -8,7 +8,7 @@
 <body>
     <div class="container">
         <h1 class="mt-5">Stock Data</h1>
-        <p>Total Unique Tickers in Database: {{ 5474 }}</p>
+        <p>Total Unique Tickers in Database: {{ total_tickers }}</p>
 
         <form method="POST">
             <div class="form-group">
@@ -58,6 +58,52 @@
             <p>RS Score: {{ rs_score['rs_63'] | round(2) }}</p>
         {% else %}
             <p>No RS Score available</p>
+        {% endif %}
+
+        <!-- Box for Highest RS Score Stocks -->
+        <h2>Highest RS Score Stocks</h2>
+        {% if highest_rs_stocks and highest_rs_stocks|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>RS Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in highest_rs_stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>{{ stock['rs_score'] | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No high RS Score stocks available</p>
+        {% endif %}
+
+        <!-- Box for Stocks making a new RS high -->
+        <h2>Stocks making a new RS High</h2>
+        {% if new_rs_high_stocks and new_rs_high_stocks|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>RS Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in new_rs_high_stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>{{ stock['rs_score'] | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No stocks making a new RS High</p>
         {% endif %}
     </div>
 </body>
