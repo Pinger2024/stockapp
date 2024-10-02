@@ -33,7 +33,4 @@ def index():
     return render_template("index.html", tickers_count=len(tickers_count), search_result=search_result, stocks=stocks, rs_score=rs_score)
 
 if __name__ == "__main__":
-    # Get the port from the environment variable, default to 5000 if not set
-    port = int(os.environ.get("PORT", 5000))
-    # Run the app on all available IPs (0.0.0.0)
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0")
