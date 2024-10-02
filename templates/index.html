@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
@@ -36,7 +34,7 @@
                 {% for data in ohlcv_data %}
                 <tr>
                     <td>{{ data['ticker'] }}</td>
-                    <td>{{ data['date'] }}</td>
+                    <td>{{ data['date'].strftime("%Y-%m-%d") if data['date'] else 'N/A' }}</td>
                     <td>{{ data['open'] }}</td>
                     <td>{{ data['close'] }}</td>
                     <td>{{ data['volume'] }}</td>
@@ -49,8 +47,8 @@
         {% endif %}
 
         <h2>Stock Price Chart</h2>
-        {% if ticker %}
-            <img src="/plot?ticker={{ ticker }}" alt="Stock Prices for Selected Tickers">
+        {% if ticker and ohlcv_data and ohlcv_data|length > 0 %}
+            <img src="/plot?ticker={{ ticker }}" alt="Stock Prices for {{ ticker }}" class="img-fluid">
         {% else %}
             <p>No stock price chart available</p>
         {% endif %}
