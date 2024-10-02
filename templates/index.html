@@ -62,6 +62,14 @@
         <!-- Stock Price Chart -->
         <h2>Stock Price Chart</h2>
         <img src="/plot?ticker={{ search_result or 'TSLA' }}" alt="Stock Prices for Selected Tickers">
+
+        <!-- RS Score Section -->
+        <h2>RS Score</h2>
+        {% if rs_score %}
+        <div class="alert alert-info">RS Score for <strong>{{ search_result }}</strong>: {{ rs_score }}</div>
+        {% else %}
+        <p>No RS Score available</p>
+        {% endif %}
     </div>
 </body>
 </html>
