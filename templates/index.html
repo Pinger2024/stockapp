@@ -18,46 +18,48 @@
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
 
-        <h2>OHLCV Data</h2>
-        {% if ohlcv_data and ohlcv_data|length > 0 %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Ticker</th>
-                    <th>Date</th>
-                    <th>Open</th>
-                    <th>Close</th>
-                    <th>Volume</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for data in ohlcv_data %}
-                <tr>
-                    <td>{{ data['ticker'] }}</td>
-                    <td>{{ data['date'].strftime("%Y-%m-%d") if data['date'] else 'N/A' }}</td>
-                    <td>{{ data['open'] }}</td>
-                    <td>{{ data['close'] }}</td>
-                    <td>{{ data['volume'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>No OHLCV data available</p>
-        {% endif %}
+        {% if ticker %}
+            <h2>OHLCV Data for {{ ticker }}</h2>
+            {% if ohlcv_data and ohlcv_data|length > 0 %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Date</th>
+                        <th>Open</th>
+                        <th>Close</th>
+                        <th>Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in ohlcv_data %}
+                    <tr>
+                        <td>{{ data['ticker'] }}</td>
+                        <td>{{ data['date'].strftime("%Y-%m-%d") if data['date'] else 'N/A' }}</td>
+                        <td>{{ data['open'] }}</td>
+                        <td>{{ data['close'] }}</td>
+                        <td>{{ data['volume'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No OHLCV data available for {{ ticker }}</p>
+            {% endif %}
 
-        <h2>Stock Price Chart</h2>
-        {% if ticker and ohlcv_data and ohlcv_data|length > 0 %}
-            <img src="/plot?ticker={{ ticker }}" alt="Stock Prices for {{ ticker }}" class="img-fluid">
-        {% else %}
-            <p>No stock price chart available</p>
-        {% endif %}
+            <h2>Stock Price Chart for {{ ticker }}</h2>
+            {% if ohlcv_data and ohlcv_data|length > 0 %}
+                <img src="/plot?ticker={{ ticker }}" alt="Stock Prices for {{ ticker }}" class="img-fluid">
+            {% else %}
+                <p>No stock price chart available for {{ ticker }}</p>
+            {% endif %}
 
-        <h2>RS Score</h2>
-        {% if rs_score %}
-            <p>RS Score: {{ rs_score['rs_63'] | round(2) }}</p>
-        {% else %}
-            <p>No RS Score available</p>
+            <h2>RS Score for {{ ticker }}</h2>
+            {% if rs_score is not none %}
+                <p>RS Score: {{ rs_score | round(2) }}</p>
+            {% else %}
+                <p>No RS Score available for {{ ticker }}</p>
+            {% endif %}
         {% endif %}
 
         <!-- Box for Highest RS Score Stocks -->
@@ -83,8 +85,8 @@
         <p>No high RS Score stocks available</p>
         {% endif %}
 
-        <!-- Box for Stocks making a new RS high -->
-        <h2>Stocks making a new RS High</h2>
+        <!-- Box for Stocks Making a New RS High -->
+        <h2>Stocks Making a New RS High</h2>
         {% if new_rs_high_stocks and new_rs_high_stocks|length > 0 %}
         <table class="table">
             <thead>
