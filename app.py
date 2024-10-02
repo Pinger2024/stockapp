@@ -35,6 +35,8 @@ def index():
             indicator_data = indicators_collection.find_one({"ticker": ticker})
             if indicator_data:
                 rs_score = indicator_data.get("rs_score")
+            else:
+                rs_score = "No RS score found"  # Handle missing RS score
 
     # Get top 5 highest RS score stocks
     highest_rs_stocks = list(indicators_collection.find().sort("rs_score", -1).limit(5))
