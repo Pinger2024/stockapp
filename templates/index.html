@@ -1,127 +1,112 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2487.6">
-  <style type="text/css">
-    span.s1 {font-kerning: none}
-  </style>
+    <meta charset="UTF-8">
+    <title>Stock Data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1">&lt;!DOCTYPE html&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1">&lt;html lang="en"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1">&lt;head&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">    </span>&lt;title&gt;Stock Data&lt;/title&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1">&lt;/head&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1">&lt;body&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="container"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;h1 class="mt-5"&gt;Stock Data&lt;/h1&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;p&gt;Total Unique Tickers in Database: {{ total_tickers }}&lt;/p&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f; min-height: 35.0px"><span class="s1"></span><br></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;form method="POST"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="form-group"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;label for="ticker"&gt;Search Ticker&lt;/label&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;input type="text" class="form-control" id="ticker" name="ticker" placeholder="Enter ticker symbol"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;button type="submit" class="btn btn-primary"&gt;Search&lt;/button&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/form&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f; min-height: 35.0px"><span class="s1"></span><br></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% if ticker %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;h2&gt;OHLCV Data for {{ ticker }}&lt;/h2&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% if ohlcv_data and ohlcv_data|length &gt; 0 %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;table class="table"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;thead&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;th&gt;Ticker&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;th&gt;Date&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;th&gt;Open&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;th&gt;Close&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;th&gt;Volume&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/thead&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tbody&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>{% for data in ohlcv_data %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;td&gt;{{ data['ticker'] }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;td&gt;{{ data['date'].strftime("%Y-%m-%d") if data['date'] else 'N/A' }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;td&gt;{{ data['open'] }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;td&gt;{{ data['close'] }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;td&gt;{{ data['volume'] }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>{% endfor %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tbody&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/table&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% else %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;p&gt;No OHLCV data available for {{ ticker }}&lt;/p&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% endif %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f; min-height: 35.0px"><span class="s1"></span><br></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;h2&gt;Stock Price Chart for {{ ticker }}&lt;/h2&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% if ohlcv_data and ohlcv_data|length &gt; 0 %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;img src="/plot?ticker={{ ticker }}" alt="Stock Prices for {{ ticker }}" class="img-fluid"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% else %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;p&gt;No stock price chart available for {{ ticker }}&lt;/p&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% endif %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f; min-height: 35.0px"><span class="s1"></span><br></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;h2&gt;RS Score for {{ ticker }}&lt;/h2&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% if rs_score is not none %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;p&gt;RS Score: {{ rs_score | round(2) }}&lt;/p&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% else %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;p&gt;No RS Score available for {{ ticker }}&lt;/p&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>{% endif %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% endif %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f; min-height: 35.0px"><span class="s1"></span><br></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- Box for Highest RS Score Stocks --&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Highest RS Score Stocks&lt;/h2&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% if highest_rs_stocks and highest_rs_stocks|length &gt; 0 %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;table class="table"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;thead&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;th&gt;Ticker&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;th&gt;RS Score&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/thead&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;tbody&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>{% for stock in highest_rs_stocks %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;td&gt;{{ stock['ticker'] }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;td&gt;{{ stock['rs_score'] | round(2) }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>{% endfor %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/tbody&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/table&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% else %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;p&gt;No high RS Score stocks available&lt;/p&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% endif %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f; min-height: 35.0px"><span class="s1"></span><br></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- Box for Stocks Making a New RS High --&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Stocks Making a New RS High&lt;/h2&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% if new_rs_high_stocks and new_rs_high_stocks|length &gt; 0 %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;table class="table"&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;thead&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;th&gt;Ticker&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;th&gt;RS Score&lt;/th&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/thead&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;tbody&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>{% for stock in new_rs_high_stocks %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;td&gt;{{ stock['ticker'] }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;td&gt;{{ stock['rs_score'] | round(2) }}&lt;/td&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">                </span>{% endfor %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/tbody&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/table&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% else %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>&lt;p&gt;No stocks making a new RS High&lt;/p&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">        </span>{% endif %}</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1">&lt;/body&gt;</span></h1>
-<h1 style="margin: 0.0px 0.0px 6.0px 0.0px; font: 30.0px '.SF NS'; color: #191c1f; -webkit-text-stroke: #191c1f"><span class="s1">&lt;/html&gt;</span></h1>
+    <div class="container">
+        <h1 class="mt-5">Stock Data</h1>
+        <p>Total Unique Tickers in Database: {{ total_tickers }}</p>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="ticker">Search Ticker</label>
+                <input type="text" class="form-control" id="ticker" name="ticker" placeholder="Enter ticker symbol">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        {% if ticker %}
+            <h2>OHLCV Data for {{ ticker }}</h2>
+            {% if ohlcv_data and ohlcv_data|length > 0 %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Date</th>
+                        <th>Open</th>
+                        <th>Close</th>
+                        <th>Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in ohlcv_data %}
+                    <tr>
+                        <td>{{ data['ticker'] }}</td>
+                        <td>{{ data['date'].strftime("%Y-%m-%d") if data['date'] else 'N/A' }}</td>
+                        <td>{{ data['open'] }}</td>
+                        <td>{{ data['close'] }}</td>
+                        <td>{{ data['volume'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No OHLCV data available for {{ ticker }}</p>
+            {% endif %}
+
+            <h2>Stock Price Chart for {{ ticker }}</h2>
+            {% if ohlcv_data and ohlcv_data|length > 0 %}
+                <img src="/plot?ticker={{ ticker }}" alt="Stock Prices for {{ ticker }}" class="img-fluid">
+            {% else %}
+                <p>No stock price chart available for {{ ticker }}</p>
+            {% endif %}
+
+            <h2>RS Score for {{ ticker }}</h2>
+            {% if rs_score is not none %}
+                <p>RS Score: {{ rs_score | round(2) }}</p>
+            {% else %}
+                <p>No RS Score available for {{ ticker }}</p>
+            {% endif %}
+        {% endif %}
+
+        <!-- Box for Highest RS Score Stocks -->
+        <h2>Highest RS Score Stocks</h2>
+        {% if highest_rs_stocks and highest_rs_stocks|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>RS Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in highest_rs_stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>{{ stock['rs_score'] | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No high RS Score stocks available</p>
+        {% endif %}
+
+        <!-- Box for Stocks Making a New RS High -->
+        <h2>Stocks Making a New RS High</h2>
+        {% if new_rs_high_stocks and new_rs_high_stocks|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>RS Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in new_rs_high_stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>{{ stock['rs_score'] | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No stocks making a new RS High</p>
+        {% endif %}
+    </div>
 </body>
 </html>
