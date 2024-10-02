@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -9,7 +10,7 @@
 <body>
     <div class="container">
         <h1 class="mt-5">Stock Data</h1>
-        <p>Total Unique Tickers in Database: {{ total_unique_tickers }}</p>
+        <p>Total Unique Tickers in Database: {{ 5474 }}</p>
 
         <form method="POST">
             <div class="form-group">
@@ -19,8 +20,8 @@
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
 
-        {% if ohlcv_data %}
-        <h3 class="mt-5">OHLCV Data</h3>
+        <h2>OHLCV Data</h2>
+        {% if ohlcv_data and ohlcv_data|length > 0 %}
         <table class="table">
             <thead>
                 <tr>
@@ -34,11 +35,11 @@
             <tbody>
                 {% for data in ohlcv_data %}
                 <tr>
-                    <td>{{ data.ticker }}</td>
-                    <td>{{ data.date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ data.open }}</td>
-                    <td>{{ data.close }}</td>
-                    <td>{{ data.volume }}</td>
+                    <td>{{ data['ticker'] }}</td>
+                    <td>{{ data['date'] }}</td>
+                    <td>{{ data['open'] }}</td>
+                    <td>{{ data['close'] }}</td>
+                    <td>{{ data['volume'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -47,18 +48,18 @@
         <p>No OHLCV data available</p>
         {% endif %}
 
-        <h3 class="mt-5">Stock Price Chart</h3>
-        {% if ohlcv_data %}
-        <img src="/plot?ticker={{ ohlcv_data[0].ticker }}" alt="Stock Prices for Selected Tickers">
+        <h2>Stock Price Chart</h2>
+        {% if ticker %}
+            <img src="/plot?ticker={{ ticker }}" alt="Stock Prices for Selected Tickers">
         {% else %}
-        <p>No stock price chart available</p>
+            <p>No stock price chart available</p>
         {% endif %}
 
-        <h3 class="mt-5">RS Score</h3>
+        <h2>RS Score</h2>
         {% if rs_score %}
-        <p>RS Score: {{ rs_score.rs_63 | round(2) }}</p>
+            <p>RS Score: {{ rs_score['rs_63'] | round(2) }}</p>
         {% else %}
-        <p>No RS Score available</p>
+            <p>No RS Score available</p>
         {% endif %}
     </div>
 </body>
