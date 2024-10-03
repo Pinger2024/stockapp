@@ -87,7 +87,7 @@ def download_watchlist():
         stocks = list(indicators_collection.find(
             {
                 "new_rs_high": True,
-                "minervini_criteria.minervini_score": {"$gte": 5}
+                "minervini_criteria.minervini_score": {"$gte": 6}
             },
             {"ticker": 1, "_id": 0}
         ))
