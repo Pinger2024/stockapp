@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stocks Making a New RS High and Meet at Least 5 Minervini Criteria</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stocks Making a New RS High and Meet at Least 5 Minervini Criteria</h1>
+        {% if stocks and stocks|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>RS Score</th>
+                    <th>Minervini Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>{{ stock['rs_score'] | round(2) }}</td>
+                    <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="/download_watchlist?type=rs_high_and_minervini" class="btn btn-secondary">Download Watchlist</a>
+        {% else %}
+        <p>No stocks found.</p>
+        {% endif %}
+        <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+</body>
+</html>

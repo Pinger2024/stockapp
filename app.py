@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 from pymongo import MongoClient
 import matplotlib.pyplot as plt
 import io
@@ -19,60 +19,98 @@ ohlcv_collection = db['ohlcv_data']
 indicators_collection = db['indicators']
 
 # Route for main page
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
-    ticker = None
-    ohlcv_data = None
-    rs_score = None
     total_tickers = ohlcv_collection.distinct('ticker')
     total_tickers_count = len(total_tickers)
 
-    # Handle form submission to search for a specific ticker
-    if request.method == 'POST':
-        ticker = request.form['ticker'].upper()
+    # Fetch stocks making a new RS High and meet at least 5 Minervini criteria
+    rs_high_and_minervini_stocks = list(indicators_collection.find(
+        {
+            "new_rs_high": True,
+            "minervini_criteria.minervini_score": {"$gte": 5}
+        },
+        {"ticker": 1, "rs_score": 1, "minervini_criteria.minervini_score": 1, "_id": 0}
+    ))
+    rs_high_and_minervini_stocks_display = rs_high_and_minervini_stocks[:10]
+    rs_high_and_minervini_more = len(rs_high_and_minervini_stocks) > 10
 
-        # Retrieve OHLCV data for the ticker
-        ohlcv_data = list(ohlcv_collection.find({"ticker": ticker}).sort("date", -1))
+    # Fetch stocks with buy signal, meet at least 6 Minervini criteria, and have an RS score over 60
+    buy_signal_stocks = list(indicators_collection.find(
+        {
+            "buy_signal": True,
+            "minervini_criteria.minervini_score": {"$gte": 6},
+            "rs_score": {"$gte": 60}
+        },
+        {"ticker": 1, "rs_score": 1, "minervini_criteria.minervini_score": 1, "_id": 0}
+    ))
+    buy_signal_stocks_display = buy_signal_stocks[:10]
+    buy_signal_more = len(buy_signal_stocks) > 10
 
-        # Retrieve the RS score for the ticker
-        rs_entry = indicators_collection.find_one({"ticker": ticker})
-        if rs_entry:
-            rs_score = rs_entry.get('rs_score')
+    return render_template('index.html',
+                           total_tickers=total_tickers_count,
+                           rs_high_and_minervini_stocks=rs_high_and_minervini_stocks_display,
+                           rs_high_and_minervini_more=rs_high_and_minervini_more,
+                           buy_signal_stocks=buy_signal_stocks_display,
+                           buy_signal_more=buy_signal_more)
 
-    # Find the top 5 stocks by RS score
-    highest_rs_stocks = list(indicators_collection.find().sort("rs_score", -1).limit(5))
+# Route to display all stocks making a new RS High and meet at least 5 Minervini criteria
+@app.route('/rs_high_and_minervini')
+def rs_high_and_minervini():
+    rs_high_and_minervini_stocks = list(indicators_collection.find(
+        {
+            "new_rs_high": True,
+            "minervini_criteria.minervini_score": {"$gte": 5}
+        },
+        {"ticker": 1, "rs_score": 1, "minervini_criteria.minervini_score": 1, "_id": 0}
+    ))
+    return render_template('rs_high_and_minervini.html', stocks=rs_high_and_minervini_stocks)
 
-    # Find the stocks making a new RS high
-    new_rs_high_stocks = list(indicators_collection.find({"new_rs_high": True}).sort("ticker", 1))
+# Route to display all stocks with buy signal, meet at least 6 Minervini criteria, and RS score over 60
+@app.route('/buy_signal_stocks')
+def buy_signal_stocks():
+    buy_signal_stocks = list(indicators_collection.find(
+        {
+            "buy_signal": True,
+            "minervini_criteria.minervini_score": {"$gte": 6},
+            "rs_score": {"$gte": 60}
+        },
+        {"ticker": 1, "rs_score": 1, "minervini_criteria.minervini_score": 1, "_id": 0}
+    ))
+    return render_template('buy_signal_stocks.html', stocks=buy_signal_stocks)
 
-    return render_template('index.html', ticker=ticker, ohlcv_data=ohlcv_data, rs_score=rs_score,
-                           highest_rs_stocks=highest_rs_stocks, new_rs_high_stocks=new_rs_high_stocks,
-                           total_tickers=total_tickers_count)
+# Route to download watchlist
+@app.route('/download_watchlist')
+def download_watchlist():
+    watchlist_type = request.args.get('type')
+    if watchlist_type == 'rs_high_and_minervini':
+        stocks = list(indicators_collection.find(
+            {
+                "new_rs_high": True,
+                "minervini_criteria.minervini_score": {"$gte": 5}
+            },
+            {"ticker": 1, "_id": 0}
+        ))
+    elif watchlist_type == 'buy_signal':
+        stocks = list(indicators_collection.find(
+            {
+                "buy_signal": True,
+                "minervini_criteria.minervini_score": {"$gte": 6},
+                "rs_score": {"$gte": 60}
+            },
+            {"ticker": 1, "_id": 0}
+        ))
+    else:
+        return "Invalid watchlist type", 400
 
+    # Generate the .txt file content
+    tickers = [stock['ticker'] for stock in stocks]
+    tickers_text = '\n'.join(tickers)
 
-# Route for plotting stock price chart
-@app.route('/plot')
-def plot():
-    ticker = request.args.get('ticker')
-    ohlcv_data = list(ohlcv_collection.find({"ticker": ticker}).sort("date", 1))
-
-    dates = [data['date'] for data in ohlcv_data]
-    closes = [data['close'] for data in ohlcv_data]
-
-    plt.figure(figsize=(10, 5))
-    plt.plot(dates, closes, label=f'{ticker} Closing Prices')
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.title(f'{ticker} Stock Price')
-    plt.legend()
-
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plot_url = base64.b64encode(img.getvalue()).decode()
-
-    return f'<img src="data:image/png;base64,{plot_url}">'
-
+    # Create a response with the .txt file
+    response = Response(tickers_text, mimetype='text/plain')
+    response.headers['Content-Disposition'] = 'attachment; filename=watchlist.txt'
+    return response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

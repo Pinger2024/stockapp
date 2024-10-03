@@ -10,102 +10,69 @@
         <h1 class="mt-5">Stock Data</h1>
         <p>Total Unique Tickers in Database: {{ total_tickers }}</p>
 
+        {# Commented out the search form and OHLCV data #}
+        {#
         <form method="POST">
-            <div class="form-group">
-                <label for="ticker">Search Ticker</label>
-                <input type="text" class="form-control" id="ticker" name="ticker" placeholder="Enter ticker symbol">
-            </div>
-            <button type="submit" class="btn btn-primary">Search</button>
+            <!-- Search form code -->
         </form>
+        #}
 
-        {% if ticker %}
-            <h2>OHLCV Data for {{ ticker }}</h2>
-            {% if ohlcv_data and ohlcv_data|length > 0 %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Date</th>
-                        <th>Open</th>
-                        <th>Close</th>
-                        <th>Volume</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in ohlcv_data %}
-                    <tr>
-                        <td>{{ data['ticker'] }}</td>
-                        <td>{{ data['date'].strftime("%Y-%m-%d") if data['date'] else 'N/A' }}</td>
-                        <td>{{ data['open'] }}</td>
-                        <td>{{ data['close'] }}</td>
-                        <td>{{ data['volume'] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p>No OHLCV data available for {{ ticker }}</p>
-            {% endif %}
-
-            <h2>Stock Price Chart for {{ ticker }}</h2>
-            {% if ohlcv_data and ohlcv_data|length > 0 %}
-                <img src="/plot?ticker={{ ticker }}" alt="Stock Prices for {{ ticker }}" class="img-fluid">
-            {% else %}
-                <p>No stock price chart available for {{ ticker }}</p>
-            {% endif %}
-
-            <h2>RS Score for {{ ticker }}</h2>
-            {% if rs_score is not none %}
-                <p>RS Score: {{ rs_score | round(2) }}</p>
-            {% else %}
-                <p>No RS Score available for {{ ticker }}</p>
-            {% endif %}
-        {% endif %}
-
-        <!-- Box for Highest RS Score Stocks -->
-        <h2>Highest RS Score Stocks</h2>
-        {% if highest_rs_stocks and highest_rs_stocks|length > 0 %}
+        <!-- Box for Stocks Making a New RS High and meet at least 5 Minervini criteria -->
+        <h2>Stocks Making a New RS High and Meet at Least 5 Minervini Criteria</h2>
+        {% if rs_high_and_minervini_stocks and rs_high_and_minervini_stocks|length > 0 %}
         <table class="table">
             <thead>
                 <tr>
                     <th>Ticker</th>
                     <th>RS Score</th>
+                    <th>Minervini Score</th>
                 </tr>
             </thead>
             <tbody>
-                {% for stock in highest_rs_stocks %}
+                {% for stock in rs_high_and_minervini_stocks %}
                 <tr>
                     <td>{{ stock['ticker'] }}</td>
                     <td>{{ stock['rs_score'] | round(2) }}</td>
+                    <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% if rs_high_and_minervini_more %}
+            <a href="/rs_high_and_minervini" class="btn btn-primary">View More</a>
+            <a href="/download_watchlist?type=rs_high_and_minervini" class="btn btn-secondary">Download Watchlist</a>
+        {% endif %}
         {% else %}
-        <p>No high RS Score stocks available</p>
+        <p>No stocks found.</p>
         {% endif %}
 
-        <!-- Box for Stocks Making a New RS High -->
-        <h2>Stocks Making a New RS High</h2>
-        {% if new_rs_high_stocks and new_rs_high_stocks|length > 0 %}
+        <!-- Box for Stocks with a Buy Signal, meet at least 6 Minervini criteria, and RS score over 60 -->
+        <h2>Stocks with a Buy Signal, Meet at Least 6 Minervini Criteria, and RS Score Over 60</h2>
+        {% if buy_signal_stocks and buy_signal_stocks|length > 0 %}
         <table class="table">
             <thead>
                 <tr>
                     <th>Ticker</th>
                     <th>RS Score</th>
+                    <th>Minervini Score</th>
                 </tr>
             </thead>
             <tbody>
-                {% for stock in new_rs_high_stocks %}
+                {% for stock in buy_signal_stocks %}
                 <tr>
                     <td>{{ stock['ticker'] }}</td>
                     <td>{{ stock['rs_score'] | round(2) }}</td>
+                    <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% if buy_signal_more %}
+            <a href="/buy_signal_stocks" class="btn btn-primary">View More</a>
+            <a href="/download_watchlist?type=buy_signal" class="btn btn-secondary">Download Watchlist</a>
+        {% endif %}
         {% else %}
-        <p>No stocks making a new RS High</p>
+        <p>No stocks found.</p>
         {% endif %}
     </div>
 </body>

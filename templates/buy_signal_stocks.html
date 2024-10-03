@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stocks with a Buy Signal, Meet at Least 6 Minervini Criteria, and RS Score Over 60</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stocks with a Buy Signal, Meet at Least 6 Minervini Criteria, and RS Score Over 60</h1>
+        {% if stocks and stocks|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>RS Score</th>
+                    <th>Minervini Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>{{ stock['rs_score'] | round(2) }}</td>
+                    <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="/download_watchlist?type=buy_signal" class="btn btn-secondary">Download Watchlist</a>
+        {% else %}
+        <p>No stocks found.</p>
+        {% endif %}
+        <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+</body>
+</html>
