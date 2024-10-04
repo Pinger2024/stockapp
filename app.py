@@ -20,7 +20,12 @@ def index():
     total_tickers_count = len(total_tickers)
     query = {}
 
+    logging.info(f"Request method: {request.method}")
+
     if request.method == 'POST':
+        # Log the entire form data for debugging purposes
+        logging.info(f"Form data received: {request.form}")
+
         # Ticker filter
         ticker = request.form.get('ticker')
         if ticker:
