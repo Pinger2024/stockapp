@@ -1,68 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Data</title>
-    <!-- Updated Bootstrap CSS Link -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- Link to custom CSS file -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <!-- ... (your existing head content) ... -->
 </head>
 <body>
     <div class="container mt-5">
-        <div id="loading" style="display: none;">Loading...</div>
-        <h1>Stock Data</h1>
-        <p>Total Unique Tickers in Database: {{ total_tickers }}</p>
+        <!-- ... (other content) ... -->
 
         <!-- Search Filter Form -->
-        <form method="POST" action="/" class="mb-4">
+        <form method="GET" action="/" class="mb-4">
             <div class="form-row align-items-center">
                 <div class="col-auto">
                     <label for="ticker">Search Ticker</label>
-                    <input type="text" class="form-control mb-2" id="ticker" name="ticker" placeholder="Enter ticker symbol">
+                    <input type="text" class="form-control mb-2" id="ticker" name="ticker" placeholder="Enter ticker symbol" value="{{ request.args.get('ticker', '') }}">
                 </div>
                 <div class="col-auto">
                     <label for="rs_score_min">RS Score Min</label>
-                    <input type="number" class="form-control mb-2" id="rs_score_min" name="rs_score_min" placeholder="Min RS Score">
+                    <input type="number" class="form-control mb-2" id="rs_score_min" name="rs_score_min" placeholder="Min RS Score" value="{{ request.args.get('rs_score_min', '') }}">
                 </div>
                 <div class="col-auto">
                     <label for="rs_score_max">RS Score Max</label>
-                    <input type="number" class="form-control mb-2" id="rs_score_max" name="rs_score_max" placeholder="Max RS Score">
+                    <input type="number" class="form-control mb-2" id="rs_score_max" name="rs_score_max" placeholder="Max RS Score" value="{{ request.args.get('rs_score_max', '') }}">
                 </div>
                 <div class="col-auto">
                     <label for="new_rs_high">New RS High</label>
                     <select class="form-control mb-2" id="new_rs_high" name="new_rs_high">
                         <option value="">Any</option>
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
+                        <option value="true" {% if request.args.get('new_rs_high') == 'true' %}selected{% endif %}>Yes</option>
+                        <option value="false" {% if request.args.get('new_rs_high') == 'false' %}selected{% endif %}>No</option>
                     </select>
                 </div>
                 <div class="col-auto">
                     <label for="buy_signal">Buy Signal</label>
                     <select class="form-control mb-2" id="buy_signal" name="buy_signal">
                         <option value="">Any</option>
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
+                        <option value="true" {% if request.args.get('buy_signal') == 'true' %}selected{% endif %}>Yes</option>
+                        <option value="false" {% if request.args.get('buy_signal') == 'false' %}selected{% endif %}>No</option>
                     </select>
                 </div>
                 <div class="col-auto">
                     <label for="mansfield_rs_min">Mansfield RS Min</label>
-                    <input type="number" step="0.1" class="form-control mb-2" id="mansfield_rs_min" name="mansfield_rs_min" placeholder="Min Mansfield RS">
+                    <input type="number" step="0.1" class="form-control mb-2" id="mansfield_rs_min" name="mansfield_rs_min" placeholder="Min Mansfield RS" value="{{ request.args.get('mansfield_rs_min', '') }}">
                 </div>
                 <div class="col-auto">
                     <label for="stage">Stage</label>
                     <select class="form-control mb-2" id="stage" name="stage">
                         <option value="">Any</option>
-                        <option value="1">Stage 1 - Accumulation</option>
-                        <option value="2">Stage 2 - Uptrend</option>
-                        <option value="3">Stage 3 - Distribution</option>
-                        <option value="4">Stage 4 - Decline</option>
+                        <option value="1" {% if request.args.get('stage') == '1' %}selected{% endif %}>Stage 1 - Accumulation</option>
+                        <option value="2" {% if request.args.get('stage') == '2' %}selected{% endif %}>Stage 2 - Uptrend</option>
+                        <option value="3" {% if request.args.get('stage') == '3' %}selected{% endif %}>Stage 3 - Distribution</option>
+                        <option value="4" {% if request.args.get('stage') == '4' %}selected{% endif %}>Stage 4 - Decline</option>
                     </select>
                 </div>
                 <div class="col-auto mt-auto">
                     <button type="submit" class="btn btn-primary mb-2">Filter</button>
-                    <button type="reset" class="btn btn-secondary mb-2">Reset</button>
+                    <button type="button" class="btn btn-secondary mb-2" onclick="window.location.href='{{ url_for('index') }}'">Reset</button>
                 </div>
             </div>
         </form>
@@ -104,23 +96,30 @@
         </table>
 
         <!-- Pagination Controls -->
+        {% set base_args = request.args.to_dict() %}
         <nav aria-label="Page navigation">
             <ul class="pagination">
                 {% if current_page > 1 %}
+                {% set args = base_args.copy() %}
+                {% set args['page'] = current_page - 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ current_page - 1 }}" aria-label="Previous">
+                    <a class="page-link" href="{{ url_for('index', **args) }}" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
                 {% endif %}
                 {% for page_num in range(1, total_pages + 1) %}
+                {% set args = base_args.copy() %}
+                {% set args['page'] = page_num %}
                 <li class="page-item {% if page_num == current_page %}active{% endif %}">
-                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    <a class="page-link" href="{{ url_for('index', **args) }}">{{ page_num }}</a>
                 </li>
                 {% endfor %}
                 {% if current_page < total_pages %}
+                {% set args = base_args.copy() %}
+                {% set args['page'] = current_page + 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ current_page + 1 }}" aria-label="Next">
+                    <a class="page-link" href="{{ url_for('index', **args) }}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -133,12 +132,6 @@
         {% endif %}
     </div>
 
-    <!-- Link to full version of jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Link to Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <!-- Link to custom JS file -->
-    <script src="{{ url_for('static', filename='scripts/main.js') }}"></script>
+    <!-- ... (your existing scripts) ... -->
 </body>
 </html>

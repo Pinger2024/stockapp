@@ -14,7 +14,7 @@ db = client['StockData']
 ohlcv_collection = db['ohlcv_data']
 indicators_collection = db['indicators']
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
     total_tickers = ohlcv_collection.distinct('ticker')
     total_tickers_count = len(total_tickers)
@@ -22,52 +22,48 @@ def index():
 
     logging.info(f"Request method: {request.method}")
 
-    if request.method == 'POST':
-        # Log the entire form data for debugging purposes
-        logging.info(f"Form data received: {request.form}")
+    # Log the entire query parameters for debugging purposes
+    logging.info(f"Query parameters received: {request.args}")
 
-        # Ticker filter
-        ticker = request.form.get('ticker')
-        if ticker:
-            query['ticker'] = ticker.upper()
+    # Ticker filter
+    ticker = request.args.get('ticker')
+    if ticker:
+        query['ticker'] = ticker.upper()
 
-        # RS Score filters
-        rs_score_min = request.form.get('rs_score_min')
-        rs_score_max = request.form.get('rs_score_max')
+    # RS Score filters
+    rs_score_min = request.args.get('rs_score_min')
+    rs_score_max = request.args.get('rs_score_max')
+    if rs_score_min or rs_score_max:
+        rs_score_query = {}
         if rs_score_min:
-            query['rs_score'] = {'$gte': float(rs_score_min)}
+            rs_score_query['$gte'] = float(rs_score_min)
         if rs_score_max:
-            if 'rs_score' in query:
-                query['rs_score']['$lte'] = float(rs_score_max)
-            else:
-                query['rs_score'] = {'$lte': float(rs_score_max)}
+            rs_score_query['$lte'] = float(rs_score_max)
+        query['rs_score'] = rs_score_query
 
-        # New RS High filter
-        new_rs_high = request.form.get('new_rs_high')
-        if new_rs_high == 'true':
-            query['new_rs_high'] = True
-        elif new_rs_high == 'false':
-            query['new_rs_high'] = False
+    # New RS High filter
+    new_rs_high = request.args.get('new_rs_high')
+    if new_rs_high == 'true':
+        query['new_rs_high'] = True
+    elif new_rs_high == 'false':
+        query['new_rs_high'] = False
 
-        # Buy Signal filter
-        buy_signal = request.form.get('buy_signal')
-        if buy_signal == 'true':
-            query['buy_signal'] = True
-        elif buy_signal == 'false':
-            query['buy_signal'] = False
+    # Buy Signal filter
+    buy_signal = request.args.get('buy_signal')
+    if buy_signal == 'true':
+        query['buy_signal'] = True
+    elif buy_signal == 'false':
+        query['buy_signal'] = False
 
-        # Mansfield RS Min filter
-        mansfield_rs_min = request.form.get('mansfield_rs_min')
-        if mansfield_rs_min:
-            if 'mansfield_rs' in query:
-                query['mansfield_rs']['$gte'] = float(mansfield_rs_min)
-            else:
-                query['mansfield_rs'] = {'$gte': float(mansfield_rs_min)}
+    # Mansfield RS Min filter
+    mansfield_rs_min = request.args.get('mansfield_rs_min')
+    if mansfield_rs_min:
+        query['mansfield_rs'] = {'$gte': float(mansfield_rs_min)}
 
-        # Stage filter
-        stage = request.form.get('stage')
-        if stage:
-            query['stage'] = int(stage)
+    # Stage filter
+    stage = request.args.get('stage')
+    if stage:
+        query['stage'] = int(stage)
 
     # Log the query being used for filtering
     logging.info(f"Generated query for filtering: {query}")
@@ -80,7 +76,16 @@ def index():
     # Fetch stocks using the query with pagination
     rs_high_and_minervini_stocks = list(indicators_collection.find(
         query,
-        {"ticker": 1, "rs_score": 1, "minervini_criteria.minervini_score": 1, "new_rs_high": 1, "buy_signal": 1, "mansfield_rs": 1, "stage": 1, "_id": 0}
+        {
+            "ticker": 1,
+            "rs_score": 1,
+            "minervini_criteria.minervini_score": 1,
+            "new_rs_high": 1,
+            "buy_signal": 1,
+            "mansfield_rs": 1,
+            "stage": 1,
+            "_id": 0
+        }
     ).skip(skip_items).limit(items_per_page))
 
     total_results = indicators_collection.count_documents(query)
@@ -91,6 +96,3 @@ def index():
                            rs_high_and_minervini_stocks=rs_high_and_minervini_stocks,
                            current_page=current_page,
                            total_pages=total_pages)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
