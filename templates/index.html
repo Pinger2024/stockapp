@@ -124,33 +124,26 @@
         </table>
 
         <!-- Pagination Controls -->
-        {% set base_args = request.args.to_dict() %}
         <nav aria-label="Page navigation">
             <ul class="pagination">
                 <!-- Previous Page Link -->
                 {% if current_page > 1 %}
-                {% set prev_args = base_args.copy() %}
-                {% set prev_args['page'] = current_page - 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('index', **prev_args) }}" aria-label="Previous">
+                    <a class="page-link" href="{{ url_for('index', page=current_page-1, **filters) }}" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
                 {% endif %}
                 <!-- Page Number Links -->
                 {% for page_num in range(1, total_pages + 1) %}
-                {% set page_args = base_args.copy() %}
-                {% set page_args['page'] = page_num %}
                 <li class="page-item {% if page_num == current_page %}active{% endif %}">
-                    <a class="page-link" href="{{ url_for('index', **page_args) }}">{{ page_num }}</a>
+                    <a class="page-link" href="{{ url_for('index', page=page_num, **filters) }}">{{ page_num }}</a>
                 </li>
                 {% endfor %}
                 <!-- Next Page Link -->
                 {% if current_page < total_pages %}
-                {% set next_args = base_args.copy() %}
-                {% set next_args['page'] = current_page + 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('index', **next_args) }}" aria-label="Next">
+                    <a class="page-link" href="{{ url_for('index', page=current_page+1, **filters) }}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>

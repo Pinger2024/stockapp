@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request
 from pymongo import MongoClient
 import logging
 import os
@@ -26,14 +26,18 @@ def index():
     # Log the entire query parameters for debugging purposes
     logging.info(f"Query parameters received: {request.args}")
 
+    # Prepare filters dictionary without the 'page' parameter
+    filters = request.args.to_dict()
+    current_page = int(filters.pop('page', 1))
+
     # Ticker filter
-    ticker = request.args.get('ticker')
+    ticker = filters.get('ticker')
     if ticker:
         query['ticker'] = ticker.upper()
 
     # RS Score filters
-    rs_score_min = request.args.get('rs_score_min')
-    rs_score_max = request.args.get('rs_score_max')
+    rs_score_min = filters.get('rs_score_min')
+    rs_score_max = filters.get('rs_score_max')
     if rs_score_min or rs_score_max:
         rs_score_query = {}
         if rs_score_min:
@@ -43,26 +47,26 @@ def index():
         query['rs_score'] = rs_score_query
 
     # New RS High filter
-    new_rs_high = request.args.get('new_rs_high')
+    new_rs_high = filters.get('new_rs_high')
     if new_rs_high == 'true':
         query['new_rs_high'] = True
     elif new_rs_high == 'false':
         query['new_rs_high'] = False
 
     # Buy Signal filter
-    buy_signal = request.args.get('buy_signal')
+    buy_signal = filters.get('buy_signal')
     if buy_signal == 'true':
         query['buy_signal'] = True
     elif buy_signal == 'false':
         query['buy_signal'] = False
 
     # Mansfield RS Min filter
-    mansfield_rs_min = request.args.get('mansfield_rs_min')
+    mansfield_rs_min = filters.get('mansfield_rs_min')
     if mansfield_rs_min:
         query['mansfield_rs'] = {'$gte': float(mansfield_rs_min)}
 
     # Stage filter
-    stage = request.args.get('stage')
+    stage = filters.get('stage')
     if stage:
         query['stage'] = int(stage)
 
@@ -70,7 +74,6 @@ def index():
     logging.info(f"Generated query for filtering: {query}")
 
     # Pagination logic
-    current_page = int(request.args.get('page', 1))
     items_per_page = 20
     skip_items = (current_page - 1) * items_per_page
 
@@ -96,7 +99,9 @@ def index():
                            total_tickers=total_tickers_count,
                            rs_high_and_minervini_stocks=rs_high_and_minervini_stocks,
                            current_page=current_page,
-                           total_pages=total_pages)
+                           total_pages=total_pages,
+                           filters=filters)
+
 
 if __name__ == '__main__':
     # Use the PORT environment variable if available, otherwise default to 5000
