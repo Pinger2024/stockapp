@@ -66,33 +66,41 @@
         </form>
 
         <!-- Display Stocks Table -->
-        <h2>Stocks Making a New RS High and Meet at Least 5 Minervini Criteria</h2>
-        {% if rs_high_and_minervini_stocks and rs_high_and_minervini_stocks|length > 0 %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Ticker</th>
-                    <th>RS Score</th>
-                    <th>Minervini Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stock in rs_high_and_minervini_stocks %}
-                <tr>
-                    <td>{{ stock['ticker'] }}</td>
-                    <td>{{ stock['rs_score'] | round(2) }}</td>
-                    <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% if rs_high_and_minervini_more %}
-            <a href="/rs_high_and_minervini" class="btn btn-primary">View More</a>
-            <a href="/download_watchlist?type=rs_high_and_minervini" class="btn btn-secondary">Download Watchlist</a>
-        {% endif %}
-        {% else %}
-        <p>No stocks found.</p>
-        {% endif %}
+        <h2>Stocks to check out!</h2>
+{% if rs_high_and_minervini_stocks and rs_high_and_minervini_stocks|length > 0 %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>RS Score</th>
+            <th>Minervini Score</th>
+            <th>New RS High</th>
+            <th>Buy Signal</th>
+            <th>Mansfield RS</th>
+            <th>Stage</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in rs_high_and_minervini_stocks %}
+        <tr>
+            <td>{{ stock['ticker'] }}</td>
+            <td>{{ stock['rs_score'] | round(2) }}</td>
+            <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
+            <td>{{ 'Yes' if stock['new_rs_high'] else 'No' }}</td>
+            <td>{{ 'Yes' if stock['buy_signal'] else 'No' }}</td>
+            <td>{{ stock['mansfield_rs'] | round(2) }}</td>
+            <td>{{ stock['stage'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if rs_high_and_minervini_more %}
+    <a href="/rs_high_and_minervini" class="btn btn-primary">View More</a>
+    <a href="/download_watchlist?type=rs_high_and_minervini" class="btn btn-secondary">Download Watchlist</a>
+{% endif %}
+{% else %}
+<p>No stocks found.</p>
+{% endif %}
     </div>
 
     <!-- Link to full version of jQuery -->
