@@ -52,7 +52,7 @@ def index():
     # Ticker filter
     ticker = filters.get('ticker')
     if ticker:
-        query['ticker'] = ticker.upper()
+        query['ticker'] = {'$regex': f'^{ticker}', '$options': 'i'}
 
     # RS Score filters
     rs_score_min = filters.get('rs_score_min')
@@ -111,7 +111,7 @@ def index():
                 "stage": 1,
                 "_id": 0
             }
-        ).skip(skip_items).limit(items_per_page))
+        ).sort("rs_score", -1).skip(skip_items).limit(items_per_page))
 
         # Log the number of stocks fetched
         logging.info(f"Number of stocks fetched: {len(rs_high_and_minervini_stocks)}")
