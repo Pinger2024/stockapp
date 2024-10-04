@@ -1,69 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Data</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='scripts/main.js') }}"></script>
-</head>
-<body>
-    <div class="container mt-5">
-        <h1>Stock Data</h1>
-        <p>Total Unique Tickers in Database: {{ total_tickers }}</p>
+<form method="POST" action="/" class="mb-4">
+    <div class="form-row align-items-center">
+        <!-- Ticker Search -->
+        <div class="col-auto">
+            <label for="ticker">Search Ticker</label>
+            <input type="text" class="form-control mb-2" id="ticker" name="ticker" placeholder="Enter ticker symbol">
+        </div>
 
-        <!-- Search Filter Form -->
-        <form method="POST" action="/" class="mb-4">
-            <div class="form-row align-items-center">
-                <div class="col-auto">
-                    <label for="ticker">Search Ticker</label>
-                    <input type="text" class="form-control mb-2" id="ticker" name="ticker" placeholder="Enter ticker symbol">
-                </div>
-                <div class="col-auto">
-                    <label for="rs_score_min">RS Score Min</label>
-                    <input type="number" class="form-control mb-2" id="rs_score_min" name="rs_score_min" placeholder="Min RS Score">
-                </div>
-                <div class="col-auto">
-                    <label for="rs_score_max">RS Score Max</label>
-                    <input type="number" class="form-control mb-2" id="rs_score_max" name="rs_score_max" placeholder="Max RS Score">
-                </div>
-                <div class="col-auto mt-auto">
-                    <button type="submit" class="btn btn-primary mb-2">Filter</button>
-                </div>
-            </div>
-        </form>
+        <!-- RS Score Range -->
+        <div class="col-auto">
+            <label for="rs_score_min">RS Score Min</label>
+            <input type="number" class="form-control mb-2" id="rs_score_min" name="rs_score_min" placeholder="Min RS Score">
+        </div>
+        <div class="col-auto">
+            <label for="rs_score_max">RS Score Max</label>
+            <input type="number" class="form-control mb-2" id="rs_score_max" name="rs_score_max" placeholder="Max RS Score">
+        </div>
 
-        <!-- Display Stocks Table -->
-        <h2>Stocks Making a New RS High and Meet at Least 5 Minervini Criteria</h2>
-        {% if rs_high_and_minervini_stocks and rs_high_and_minervini_stocks|length > 0 %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Ticker</th>
-                    <th>RS Score</th>
-                    <th>Minervini Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stock in rs_high_and_minervini_stocks %}
-                <tr>
-                    <td>{{ stock['ticker'] }}</td>
-                    <td>{{ stock['rs_score'] | round(2) }}</td>
-                    <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% if rs_high_and_minervini_more %}
-            <a href="/rs_high_and_minervini" class="btn btn-primary">View More</a>
-            <a href="/download_watchlist?type=rs_high_and_minervini" class="btn btn-secondary">Download Watchlist</a>
-        {% endif %}
-        {% else %}
-        <p>No stocks found.</p>
-        {% endif %}
+        <!-- New RS High Filter -->
+        <div class="col-auto">
+            <label for="new_rs_high">New RS High</label>
+            <select class="form-control mb-2" id="new_rs_high" name="new_rs_high">
+                <option value="">Any</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+
+        <!-- Buy Signal Filter -->
+        <div class="col-auto">
+            <label for="buy_signal">Buy Signal</label>
+            <select class="form-control mb-2" id="buy_signal" name="buy_signal">
+                <option value="">Any</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+
+        <!-- Mansfield RS Min -->
+        <div class="col-auto">
+            <label for="mansfield_rs_min">Mansfield RS Min</label>
+            <input type="number" step="0.1" class="form-control mb-2" id="mansfield_rs_min" name="mansfield_rs_min" placeholder="Min Mansfield RS">
+        </div>
+
+        <!-- Stage Filter -->
+        <div class="col-auto">
+            <label for="stage">Stage</label>
+            <select class="form-control mb-2" id="stage" name="stage">
+                <option value="">Any</option>
+                <option value="1">Stage 1 - Accumulation</option>
+                <option value="2">Stage 2 - Uptrend</option>
+                <option value="3">Stage 3 - Distribution</option>
+                <option value="4">Stage 4 - Decline</option>
+            </select>
+        </div>
+
+        <div class="col-auto mt-auto">
+            <button type="submit" class="btn btn-primary mb-2">Filter</button>
+        </div>
     </div>
-</body>
-</html>
+</form>
