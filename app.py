@@ -11,7 +11,8 @@ app = Flask(__name__)
 
 # MongoDB connection setup
 try:
-    client = MongoClient("mongodb://mongodb-9iyq:27017", serverSelectionTimeoutMS=5000)
+    mongo_uri = os.environ.get('MONGO_URI', 'mongodb://mongodb-9iyq:27017')
+    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
     db = client['StockData']
     ohlcv_collection = db['ohlcv_data']
     indicators_collection = db['indicators']
@@ -107,6 +108,9 @@ def index():
                 "_id": 0
             }
         ).skip(skip_items).limit(items_per_page))
+
+        # Log the number of stocks fetched
+        logging.info(f"Number of stocks fetched: {len(rs_high_and_minervini_stocks)}")
 
         total_results = indicators_collection.count_documents(query)
         total_pages = (total_results + items_per_page - 1) // items_per_page  # Calculate total pages
