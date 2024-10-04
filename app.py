@@ -119,6 +119,9 @@ def index():
         total_results = indicators_collection.count_documents(query)
         total_pages = (total_results + items_per_page - 1) // items_per_page  # Calculate total pages
 
+        # Calculate the range of pages to display
+        page_range = range(max(1, current_page - 2), min(total_pages, current_page + 2) + 1)
+
         logging.info(f"Total results: {total_results}, total pages: {total_pages}")
     except Exception as e:
         logging.error(f"Error querying MongoDB: {e}")
@@ -129,6 +132,7 @@ def index():
                            rs_high_and_minervini_stocks=rs_high_and_minervini_stocks,
                            current_page=current_page,
                            total_pages=total_pages,
+                           page_range=page_range,
                            filters=filters)
 
 # Test route for error page
