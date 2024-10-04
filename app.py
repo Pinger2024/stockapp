@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 import logging
 import os
 
@@ -10,15 +10,30 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 # MongoDB connection setup
-client = MongoClient("mongodb://mongodb-9iyq:27017")
-db = client['StockData']
-ohlcv_collection = db['ohlcv_data']
-indicators_collection = db['indicators']
+try:
+    client = MongoClient("mongodb://mongodb-9iyq:27017", serverSelectionTimeoutMS=5000)
+    db = client['StockData']
+    ohlcv_collection = db['ohlcv_data']
+    indicators_collection = db['indicators']
+    # Test the connection
+    client.admin.command('ping')
+    logging.info("Successfully connected to MongoDB.")
+except errors.ServerSelectionTimeoutError as err:
+    logging.error(f"Error connecting to MongoDB: {err}")
+    client = None  # Set client to None if connection fails
 
 @app.route('/', methods=['GET'])
 def index():
-    total_tickers = ohlcv_collection.distinct('ticker')
-    total_tickers_count = len(total_tickers)
+    if client is None:
+        return render_template('error.html', message="Unable to connect to the database.")
+
+    try:
+        total_tickers = ohlcv_collection.distinct('ticker')
+        total_tickers_count = len(total_tickers)
+    except Exception as e:
+        logging.error(f"Error fetching data from MongoDB: {e}")
+        return render_template('error.html', message="Error fetching data from the database.")
+
     query = {}
 
     logging.info(f"Request method: {request.method}")
@@ -77,23 +92,27 @@ def index():
     items_per_page = 20
     skip_items = (current_page - 1) * items_per_page
 
-    # Fetch stocks using the query with pagination
-    rs_high_and_minervini_stocks = list(indicators_collection.find(
-        query,
-        {
-            "ticker": 1,
-            "rs_score": 1,
-            "minervini_criteria.minervini_score": 1,
-            "new_rs_high": 1,
-            "buy_signal": 1,
-            "mansfield_rs": 1,
-            "stage": 1,
-            "_id": 0
-        }
-    ).skip(skip_items).limit(items_per_page))
+    try:
+        # Fetch stocks using the query with pagination
+        rs_high_and_minervini_stocks = list(indicators_collection.find(
+            query,
+            {
+                "ticker": 1,
+                "rs_score": 1,
+                "minervini_criteria.minervini_score": 1,
+                "new_rs_high": 1,
+                "buy_signal": 1,
+                "mansfield_rs": 1,
+                "stage": 1,
+                "_id": 0
+            }
+        ).skip(skip_items).limit(items_per_page))
 
-    total_results = indicators_collection.count_documents(query)
-    total_pages = (total_results + items_per_page - 1) // items_per_page  # Calculate total pages
+        total_results = indicators_collection.count_documents(query)
+        total_pages = (total_results + items_per_page - 1) // items_per_page  # Calculate total pages
+    except Exception as e:
+        logging.error(f"Error querying MongoDB: {e}")
+        return render_template('error.html', message="Error fetching data from the database.")
 
     return render_template('index.html',
                            total_tickers=total_tickers_count,
