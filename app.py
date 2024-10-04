@@ -54,7 +54,10 @@ def index():
         # Mansfield RS Min filter
         mansfield_rs_min = request.form.get('mansfield_rs_min')
         if mansfield_rs_min:
-            query['mansfield_rs'] = {'$gte': float(mansfield_rs_min)}
+            if 'mansfield_rs' in query:
+                query['mansfield_rs']['$gte'] = float(mansfield_rs_min)
+            else:
+                query['mansfield_rs'] = {'$gte': float(mansfield_rs_min)}
 
         # Stage filter
         stage = request.form.get('stage')
