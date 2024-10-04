@@ -121,6 +121,11 @@ def index():
                            total_pages=total_pages,
                            filters=filters)
 
+# Test route for error page
+@app.route('/test-error')
+def test_error():
+    return render_template('error.html', message="This is a test error message.")
+
 if __name__ == '__main__':
     # Use the PORT environment variable if available, otherwise default to 5000
     port = int(os.environ.get('PORT', 5000))

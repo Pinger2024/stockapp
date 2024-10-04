@@ -2,5 +2,4 @@ Flask==2.2.5
 pymongo==4.5.0
 pandas
 matplotlib
-pymongo
 gunicorn==20.1.0
