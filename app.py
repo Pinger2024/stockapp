@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient, errors
 import logging
 import os
@@ -25,9 +25,12 @@ except errors.ServerSelectionTimeoutError as err:
 
 @app.route('/', methods=['GET'])
 def index():
+    return render_template('index.html')
+
+@app.route('/api/stocks', methods=['GET'])
+def get_stocks():
     if client is None:
-        logging.error("MongoDB client is None, unable to proceed.")
-        return render_template('error.html', message="Unable to connect to the database.")
+        return jsonify({"error": "Unable to connect to the database."}), 500
 
     try:
         total_tickers = ohlcv_collection.distinct('ticker')
@@ -35,19 +38,11 @@ def index():
         logging.info(f"Total unique tickers in database: {total_tickers_count}")
     except Exception as e:
         logging.error(f"Error fetching data from MongoDB: {e}")
-        return render_template('error.html', message="Error fetching data from the database.")
+        return jsonify({"error": "Error fetching data from the database."}), 500
 
     query = {}
-
-    logging.info(f"Request method: {request.method}")
-
-    # Log the entire query parameters for debugging purposes
-    logging.info(f"Query parameters received: {request.args}")
-
-    # Prepare filters dictionary without the 'page' parameter
     filters = request.args.to_dict()
     current_page = int(filters.pop('page', 1))
-    logging.info(f"Current page: {current_page}")
 
     # Ticker filter
     ticker = filters.get('ticker')
@@ -89,17 +84,13 @@ def index():
     if stage:
         query['stage'] = int(stage)
 
-    # Log the query being used for filtering
-    logging.info(f"Generated query for filtering: {query}")
-
     # Pagination logic
     items_per_page = 20
     skip_items = (current_page - 1) * items_per_page
-    logging.info(f"Items per page: {items_per_page}, skip items: {skip_items}")
 
     try:
         # Fetch stocks using the query with pagination
-        rs_high_and_minervini_stocks = list(indicators_collection.find(
+        stocks = list(indicators_collection.find(
             query,
             {
                 "ticker": 1,
@@ -113,34 +104,21 @@ def index():
             }
         ).sort("rs_score", -1).skip(skip_items).limit(items_per_page))
 
-        # Log the number of stocks fetched
-        logging.info(f"Number of stocks fetched: {len(rs_high_and_minervini_stocks)}")
-
         total_results = indicators_collection.count_documents(query)
-        total_pages = (total_results + items_per_page - 1) // items_per_page  # Calculate total pages
+        total_pages = (total_results + items_per_page - 1) // items_per_page
 
-        # Calculate the range of pages to display
-        page_range = range(max(1, current_page - 2), min(total_pages, current_page + 2) + 1)
+        return jsonify({
+            "stocks": stocks,
+            "total_tickers": total_tickers_count,
+            "current_page": current_page,
+            "total_pages": total_pages,
+            "total_results": total_results
+        })
 
-        logging.info(f"Total results: {total_results}, total pages: {total_pages}")
     except Exception as e:
         logging.error(f"Error querying MongoDB: {e}")
-        return render_template('error.html', message="Error fetching data from the database.")
-
-    return render_template('index.html',
-                           total_tickers=total_tickers_count,
-                           rs_high_and_minervini_stocks=rs_high_and_minervini_stocks,
-                           current_page=current_page,
-                           total_pages=total_pages,
-                           page_range=page_range,
-                           filters=filters)
-
-# Test route for error page
-@app.route('/test-error')
-def test_error():
-    return render_template('error.html', message="This is a test error message.")
+        return jsonify({"error": "Error fetching data from the database."}), 500
 
 if __name__ == '__main__':
-    # Use the PORT environment variable if available, otherwise default to 5000
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
