@@ -26,11 +26,13 @@ except errors.ServerSelectionTimeoutError as err:
 @app.route('/', methods=['GET'])
 def index():
     if client is None:
+        logging.error("MongoDB client is None, unable to proceed.")
         return render_template('error.html', message="Unable to connect to the database.")
 
     try:
         total_tickers = ohlcv_collection.distinct('ticker')
         total_tickers_count = len(total_tickers)
+        logging.info(f"Total unique tickers in database: {total_tickers_count}")
     except Exception as e:
         logging.error(f"Error fetching data from MongoDB: {e}")
         return render_template('error.html', message="Error fetching data from the database.")
@@ -45,6 +47,7 @@ def index():
     # Prepare filters dictionary without the 'page' parameter
     filters = request.args.to_dict()
     current_page = int(filters.pop('page', 1))
+    logging.info(f"Current page: {current_page}")
 
     # Ticker filter
     ticker = filters.get('ticker')
@@ -92,6 +95,7 @@ def index():
     # Pagination logic
     items_per_page = 20
     skip_items = (current_page - 1) * items_per_page
+    logging.info(f"Items per page: {items_per_page}, skip items: {skip_items}")
 
     try:
         # Fetch stocks using the query with pagination
@@ -114,6 +118,8 @@ def index():
 
         total_results = indicators_collection.count_documents(query)
         total_pages = (total_results + items_per_page - 1) // items_per_page  # Calculate total pages
+
+        logging.info(f"Total results: {total_results}, total pages: {total_pages}")
     except Exception as e:
         logging.error(f"Error querying MongoDB: {e}")
         return render_template('error.html', message="Error fetching data from the database.")
