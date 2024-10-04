@@ -102,7 +102,6 @@ def index():
                            total_pages=total_pages,
                            filters=filters)
 
-
 if __name__ == '__main__':
     # Use the PORT environment variable if available, otherwise default to 5000
     port = int(os.environ.get('PORT', 5000))
