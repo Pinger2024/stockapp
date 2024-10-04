@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, Response
 from pymongo import MongoClient
 import logging
+import os
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -96,3 +97,8 @@ def index():
                            rs_high_and_minervini_stocks=rs_high_and_minervini_stocks,
                            current_page=current_page,
                            total_pages=total_pages)
+
+if __name__ == '__main__':
+    # Use the PORT environment variable if available, otherwise default to 5000
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
