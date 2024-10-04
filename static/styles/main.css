@@ -1,0 +1,50 @@
+/* main.css */
+
+/* General page styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Styling the container */
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form styling */
+form label {
+    font-weight: bold;
+}
+
+form .form-control {
+    max-width: 300px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Table styling */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f2f2f2;
+}
+
+.table thead th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef;
+    cursor: pointer;
+}

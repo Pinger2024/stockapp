@@ -2,25 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/main.js') }}"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mt-5">Stock Data</h1>
+    <div class="container mt-5">
+        <h1>Stock Data</h1>
         <p>Total Unique Tickers in Database: {{ total_tickers }}</p>
 
-        {# Commented out the search form and OHLCV data #}
-        {#
-        <form method="POST">
-            <!-- Search form code -->
+        <!-- Search Filter Form -->
+        <form method="POST" action="/" class="mb-4">
+            <div class="form-row align-items-center">
+                <div class="col-auto">
+                    <label for="ticker">Search Ticker</label>
+                    <input type="text" class="form-control mb-2" id="ticker" name="ticker" placeholder="Enter ticker symbol">
+                </div>
+                <div class="col-auto">
+                    <label for="rs_score_min">RS Score Min</label>
+                    <input type="number" class="form-control mb-2" id="rs_score_min" name="rs_score_min" placeholder="Min RS Score">
+                </div>
+                <div class="col-auto">
+                    <label for="rs_score_max">RS Score Max</label>
+                    <input type="number" class="form-control mb-2" id="rs_score_max" name="rs_score_max" placeholder="Max RS Score">
+                </div>
+                <div class="col-auto mt-auto">
+                    <button type="submit" class="btn btn-primary mb-2">Filter</button>
+                </div>
+            </div>
         </form>
-        #}
 
-        <!-- Box for Stocks Making a New RS High and meet at least 5 Minervini criteria -->
+        <!-- Display Stocks Table -->
         <h2>Stocks Making a New RS High and Meet at Least 5 Minervini Criteria</h2>
         {% if rs_high_and_minervini_stocks and rs_high_and_minervini_stocks|length > 0 %}
-        <table class="table">
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Ticker</th>
@@ -41,35 +60,6 @@
         {% if rs_high_and_minervini_more %}
             <a href="/rs_high_and_minervini" class="btn btn-primary">View More</a>
             <a href="/download_watchlist?type=rs_high_and_minervini" class="btn btn-secondary">Download Watchlist</a>
-        {% endif %}
-        {% else %}
-        <p>No stocks found.</p>
-        {% endif %}
-
-        <!-- Box for Stocks with a Buy Signal, meet at least 6 Minervini criteria, and RS score over 60 -->
-        <h2>Stocks with a Buy Signal, Meet at Least 6 Minervini Criteria, and RS Score Over 60</h2>
-        {% if buy_signal_stocks and buy_signal_stocks|length > 0 %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Ticker</th>
-                    <th>RS Score</th>
-                    <th>Minervini Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stock in buy_signal_stocks %}
-                <tr>
-                    <td>{{ stock['ticker'] }}</td>
-                    <td>{{ stock['rs_score'] | round(2) }}</td>
-                    <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% if buy_signal_more %}
-            <a href="/buy_signal_stocks" class="btn btn-primary">View More</a>
-            <a href="/download_watchlist?type=buy_signal" class="btn btn-secondary">Download Watchlist</a>
         {% endif %}
         {% else %}
         <p>No stocks found.</p>
