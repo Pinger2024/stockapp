@@ -64,19 +64,25 @@ def index():
     # Log the query being used for filtering
     logging.info(f"Generated query for filtering: {query}")
 
-    # Fetch stocks using the query
+    # Pagination logic
+    current_page = int(request.args.get('page', 1))
+    items_per_page = 20
+    skip_items = (current_page - 1) * items_per_page
+
+    # Fetch stocks using the query with pagination
     rs_high_and_minervini_stocks = list(indicators_collection.find(
         query,
         {"ticker": 1, "rs_score": 1, "minervini_criteria.minervini_score": 1, "new_rs_high": 1, "buy_signal": 1, "mansfield_rs": 1, "stage": 1, "_id": 0}
-    ))
+    ).skip(skip_items).limit(items_per_page))
 
-    rs_high_and_minervini_stocks_display = rs_high_and_minervini_stocks[:10]
-    rs_high_and_minervini_more = len(rs_high_and_minervini_stocks) > 10
+    total_results = indicators_collection.count_documents(query)
+    total_pages = (total_results + items_per_page - 1) // items_per_page  # Calculate total pages
 
     return render_template('index.html',
                            total_tickers=total_tickers_count,
-                           rs_high_and_minervini_stocks=rs_high_and_minervini_stocks_display,
-                           rs_high_and_minervini_more=rs_high_and_minervini_more)
+                           rs_high_and_minervini_stocks=rs_high_and_minervini_stocks,
+                           current_page=current_page,
+                           total_pages=total_pages)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

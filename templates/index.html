@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Data</title>
     <!-- Link to Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
     <!-- Link to custom CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
 </head>
 <body>
     <div class="container mt-5">
+        <div id="loading" style="display: none;">Loading...</div>
         <h1>Stock Data</h1>
         <p>Total Unique Tickers in Database: {{ total_tickers }}</p>
 
@@ -61,50 +62,79 @@
                 </div>
                 <div class="col-auto mt-auto">
                     <button type="submit" class="btn btn-primary mb-2">Filter</button>
+                    <button type="reset" class="btn btn-secondary mb-2">Reset</button>
                 </div>
             </div>
         </form>
 
         <!-- Display Stocks Table -->
-        <h2>Stocks to check out!</h2>
-{% if rs_high_and_minervini_stocks and rs_high_and_minervini_stocks|length > 0 %}
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Ticker</th>
-            <th>RS Score</th>
-            <th>Minervini Score</th>
-            <th>New RS High</th>
-            <th>Buy Signal</th>
-            <th>Mansfield RS</th>
-            <th>Stage</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for stock in rs_high_and_minervini_stocks %}
-        <tr>
-            <td>{{ stock['ticker'] }}</td>
-            <td>{{ stock['rs_score'] | round(2) }}</td>
-            <td>{{ stock['minervini_criteria']['minervini_score'] }}</td>
-            <td>{{ 'Yes' if stock['new_rs_high'] else 'No' }}</td>
-            <td>{{ 'Yes' if stock['buy_signal'] else 'No' }}</td>
-            <td>{{ stock['mansfield_rs'] | round(2) }}</td>
-            <td>{{ stock['stage'] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% if rs_high_and_minervini_more %}
-    <a href="/rs_high_and_minervini" class="btn btn-primary">View More</a>
-    <a href="/download_watchlist?type=rs_high_and_minervini" class="btn btn-secondary">Download Watchlist</a>
-{% endif %}
-{% else %}
-<p>No stocks found.</p>
-{% endif %}
+        <h2>Super Stocks to check out!</h2>
+        {% if rs_high_and_minervini_stocks and rs_high_and_minervini_stocks|length > 0 %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>RS Score</th>
+                    <th>Minervini Score</th>
+                    <th>New RS High</th>
+                    <th>Buy Signal</th>
+                    <th>Mansfield RS</th>
+                    <th>Stage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in rs_high_and_minervini_stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>{{ stock['rs_score'] | round(2) }}</td>
+                    <td>
+                        {% if stock['minervini_criteria'] is defined and 'minervini_score' in stock['minervini_criteria'] %}
+                            {{ stock['minervini_criteria']['minervini_score'] }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ 'Yes' if stock.get('new_rs_high') else 'No' }}</td>
+                    <td>{{ 'Yes' if stock.get('buy_signal') else 'No' }}</td>
+                    <td>{{ stock.get('mansfield_rs', 'N/A') | round(2) if stock.get('mansfield_rs') is not none else 'N/A' }}</td>
+                    <td>{{ stock.get('stage', 'N/A') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if current_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ current_page - 1 }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for page_num in range(1, total_pages + 1) %}
+                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                </li>
+                {% endfor %}
+                {% if current_page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ current_page + 1 }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        {% else %}
+        <p>No stocks found.</p>
+        {% endif %}
     </div>
 
     <!-- Link to full version of jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Link to Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
