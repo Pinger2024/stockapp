@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from pymongo import MongoClient, errors
 import logging
 import os
+import csv
+import io
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -118,6 +120,36 @@ def get_stocks():
     except Exception as e:
         logging.error(f"Error querying MongoDB: {e}")
         return jsonify({"error": "Error fetching data from the database."}), 500
+
+@app.route('/download-tickers', methods=['GET'])
+def download_tickers():
+    if client is None:
+        return jsonify({"error": "Unable to connect to the database."}), 500
+
+    try:
+        # Fetch unique tickers from the database
+        tickers = ohlcv_collection.distinct('ticker')
+
+        # Create a CSV output in-memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Ticker'])  # Header
+
+        for ticker in tickers:
+            writer.writerow([ticker])
+
+        output.seek(0)
+
+        # Return CSV as a file download
+        return Response(
+            output,
+            mimetype='text/csv',
+            headers={"Content-Disposition": "attachment;filename=tickers.csv"}
+        )
+
+    except Exception as e:
+        logging.error(f"Error fetching or generating CSV: {e}")
+        return jsonify({"error": "Error fetching or generating CSV file."}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

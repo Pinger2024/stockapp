@@ -60,6 +60,13 @@
             </div>
         </div>
 
+        <!-- New Button for downloading unique tickers -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <button id="downloadBtn" class="btn btn-success">Download Unique Tickers</button>
+            </div>
+        </div>
+
         <h2>Super Stocks to Check Out!</h2>
         <table class="table">
             <thead>
@@ -166,6 +173,11 @@
         document.getElementById('resetBtn').addEventListener('click', () => {
             document.querySelectorAll('input, select').forEach(el => el.value = '');
             fetchStocks(1);
+        });
+
+        // Handle download button click for unique tickers
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            window.location.href = '/download-tickers';
         });
 
         // Initial fetch
