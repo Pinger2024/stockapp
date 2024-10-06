@@ -151,6 +151,28 @@ def download_tickers():
         logging.error(f"Error fetching or generating CSV: {e}")
         return jsonify({"error": "Error fetching or generating CSV file."}), 500
 
+# New route to display all available data for a specific ticker
+@app.route('/ticker/<ticker_symbol>', methods=['GET'])
+def view_ticker_data(ticker_symbol):
+    if client is None:
+        return jsonify({"error": "Unable to connect to the database."}), 500
+
+    try:
+        # Fetch all available data for the given ticker symbol
+        ticker_data = list(ohlcv_collection.find(
+            {"ticker": ticker_symbol},
+            {"_id": 0}  # Exclude MongoDB's internal '_id' field
+        ).limit(10))
+
+        if not ticker_data:
+            return jsonify({"error": f"No data found for ticker {ticker_symbol}"}), 404
+
+        return render_template('ticker_data.html', ticker=ticker_symbol, data=ticker_data)
+
+    except Exception as e:
+        logging.error(f"Error fetching data for ticker {ticker_symbol}: {e}")
+        return jsonify({"error": "Error fetching data from the database."}), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
