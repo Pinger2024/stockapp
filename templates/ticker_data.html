@@ -9,28 +9,36 @@
 <body>
     <div class="container mt-5">
         <h1>Data for Ticker: {{ ticker }}</h1>
+        
         {% if data %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Field</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in data %}
-                    {% for key, value in record.items() %}
-                    <tr>
-                        <td>{{ key }}</td>
-                        <td>{{ value }}</td>
-                    </tr>
-                    {% endfor %}
-                    <tr><td colspan="2"><hr></td></tr> <!-- Separate records with a line -->
-                {% endfor %}
-            </tbody>
-        </table>
+            {% for collection, records in data.items() %}
+                <h2>{{ collection | capitalize }}</h2>
+                {% if records %}
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                                {% for key, value in record.items() %}
+                                <tr>
+                                    <td>{{ key }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr><td colspan="2"><hr></td></tr> <!-- Separate records with a line -->
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No data available in {{ collection }}.</p>
+                {% endif %}
+            {% endfor %}
         {% else %}
-        <p>No data available for this ticker.</p>
+            <p>No data available for this ticker.</p>
         {% endif %}
         <a href="/" class="btn btn-primary">Back to Home</a>
     </div>
