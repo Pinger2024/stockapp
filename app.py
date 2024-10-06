@@ -18,6 +18,7 @@ try:
     db = client['StockData']
     ohlcv_collection = db['ohlcv_data']
     indicators_collection = db['indicators']
+    sector_trends_collection = db['sector_trends']  # Added sector_trends collection
     # Test the connection
     client.admin.command('ping')
     logging.info("Successfully connected to MongoDB.")
@@ -175,7 +176,7 @@ def view_ticker_data(ticker_symbol):
             {"_id": 0}
         ).limit(10))
 
-        sector_trends_data = list(db['sector_trends'].find(
+        sector_trends_data = list(sector_trends_collection.find(
             {"ticker": ticker_symbol},
             {"_id": 0}
         ).limit(10))
@@ -196,7 +197,6 @@ def view_ticker_data(ticker_symbol):
     except Exception as e:
         logging.error(f"Error fetching data for ticker {ticker_symbol}: {e}")
         return jsonify({"error": "Error fetching data from the database."}), 500
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
