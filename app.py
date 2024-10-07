@@ -4,6 +4,7 @@ import logging
 import os
 import csv
 import io
+import pymongo
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
