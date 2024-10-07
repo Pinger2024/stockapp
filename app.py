@@ -18,7 +18,6 @@ try:
     db = client['StockData']
     ohlcv_collection = db['ohlcv_data']
     indicators_collection = db['indicators']
-    sector_trends_collection = db['sector_trends']  # Added sector_trends collection
     # Test the connection
     client.admin.command('ping')
     logging.info("Successfully connected to MongoDB.")
@@ -152,6 +151,37 @@ def download_tickers():
         logging.error(f"Error fetching or generating CSV: {e}")
         return jsonify({"error": "Error fetching or generating CSV file."}), 500
 
+# New route to download tickers with no sector data
+@app.route('/download-no-sector', methods=['GET'])
+def download_no_sector_tickers():
+    if client is None:
+        return jsonify({"error": "Unable to connect to the database."}), 500
+
+    try:
+        # Find tickers with no sector information
+        tickers_no_sector = indicators_collection.find({"sector": {"$exists": False}}).distinct("ticker")
+
+        # Create a CSV output in-memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Ticker'])  # Header
+
+        for ticker in tickers_no_sector:
+            writer.writerow([ticker])
+
+        output.seek(0)
+
+        # Return CSV as a file download
+        return Response(
+            output,
+            mimetype='text/csv',
+            headers={"Content-Disposition": "attachment;filename=tickers_no_sector.csv"}
+        )
+
+    except Exception as e:
+        logging.error(f"Error fetching or generating CSV: {e}")
+        return jsonify({"error": "Error fetching or generating CSV file."}), 500
+
 # New route to display all available data for a specific ticker
 @app.route('/ticker/<ticker_symbol>', methods=['GET'])
 def view_ticker_data(ticker_symbol):
@@ -159,40 +189,25 @@ def view_ticker_data(ticker_symbol):
         return jsonify({"error": "Unable to connect to the database."}), 500
 
     try:
-        # Fetch all available data for the given ticker symbol from all collections
-        ohlcv_data = list(ohlcv_collection.find(
+        # Fetch all available data for the given ticker symbol
+        ticker_data = list(ohlcv_collection.find(
             {"ticker": ticker_symbol},
-            {"_id": 0}
+            {"_id": 0}  # Exclude MongoDB's internal '_id' field
         ).limit(10))
 
-        indicators_data = list(indicators_collection.find(
-            {"ticker": ticker_symbol},
-            {"_id": 0}
-        ).limit(10))
-
-        # Assuming 'meta_data' and 'sector_trends' collections also have 'ticker' fields
-        meta_data = list(db['meta_data'].find(
-            {"ticker": ticker_symbol},
-            {"_id": 0}
-        ).limit(10))
-
-        sector_trends_data = list(sector_trends_collection.find(
-            {"ticker": ticker_symbol},
-            {"_id": 0}
-        ).limit(10))
-
-        # Combine all data
-        all_data = {
-            "ohlcv_data": ohlcv_data,
-            "indicators_data": indicators_data,
-            "meta_data": meta_data,
-            "sector_trends_data": sector_trends_data
-        }
-
-        if not any(all_data.values()):
+        if not ticker_data:
             return jsonify({"error": f"No data found for ticker {ticker_symbol}"}), 404
 
-        return render_template('ticker_data.html', ticker=ticker_symbol, data=all_data)
+        # Fetch the sector trend data for the ticker symbol if available
+        sector_trends_data = list(db['sector_trends'].find(
+            {"ticker": ticker_symbol},
+            {"_id": 0}  # Exclude '_id'
+        ).limit(10))
+
+        if not sector_trends_data:
+            sector_trends_data = None
+
+        return render_template('ticker_data.html', ticker=ticker_symbol, data=ticker_data, sector_trends_data=sector_trends_data)
 
     except Exception as e:
         logging.error(f"Error fetching data for ticker {ticker_symbol}: {e}")
