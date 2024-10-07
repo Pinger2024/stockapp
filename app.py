@@ -18,6 +18,7 @@ try:
     db = client['StockData']
     ohlcv_collection = db['ohlcv_data']
     indicators_collection = db['indicators']
+    sector_trends_collection = db['sector_trends']  # Add sector trends collection
     # Test the connection
     client.admin.command('ping')
     logging.info("Successfully connected to MongoDB.")
@@ -212,6 +213,37 @@ def view_ticker_data(ticker_symbol):
     except Exception as e:
         logging.error(f"Error fetching data for ticker {ticker_symbol}: {e}")
         return jsonify({"error": "Error fetching data from the database."}), 500
+
+# New route to fetch sector/industry trend data
+@app.route('/sector-trends')
+def sector_trends():
+    if client is None:
+        return jsonify({"error": "Unable to connect to the database."}), 500
+
+    try:
+        # Fetch the latest sector and industry trends from the sector_trends collection
+        sector_trend_data = sector_trends_collection.find({}).sort("date", pymongo.DESCENDING).limit(50)
+
+        # Prepare data for JSON response
+        trends = []
+        for trend in sector_trend_data:
+            trends.append({
+                "date": trend["date"].strftime('%Y-%m-%d'),
+                "type": trend["type"],
+                "sector_or_industry": trend.get("sector") or trend.get("industry"),
+                "average_rs": trend["average_rs"]
+            })
+
+        return jsonify(trends)
+
+    except Exception as e:
+        logging.error(f"Error fetching sector trends: {e}")
+        return jsonify({"error": "Error fetching sector trends from the database."}), 500
+
+# New route for visualizing trends
+@app.route('/trends')
+def trends_page():
+    return render_template('trends.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
