@@ -270,20 +270,38 @@ def trends_page():
 @app.route('/api/stocks-in-sector', methods=['GET'])
 def get_stocks_in_sector():
     sector = request.args.get('sector')
+    
     if not sector:
-        return jsonify([])  # Return an empty list if no sector is provided
-
+        return jsonify({"error": "Sector not provided."}), 400
+    
     try:
-        # Make sure we are querying for the sector field correctly
-        stocks = list(indicators_collection.find(
-            {"sector": sector},
-            {"ticker": 1, "peer_rs_sector": 1, "_id": 0}
-        ).sort("peer_rs_sector", -1))  # Sort descending by sector RS
+        # Get tickers for the selected sector from 'indicators' collection
+        tickers_in_sector = indicators_collection.find({"sector": sector}, {"ticker": 1})
+        tickers_list = [ticker['ticker'] for ticker in tickers_in_sector]
+        
+        if not tickers_list:
+            return jsonify([])  # Return an empty list if no tickers found
+        
+        # Fetch RS scores from 'ohlcv_data' for those tickers
+        stocks_rs_scores = ohlcv_collection.find(
+            { "ticker": { "$in": tickers_list }, "peer_rs_sector": { "$exists": True } },
+            { "ticker": 1, "peer_rs_sector": 1 }
+        ).sort("peer_rs_sector", -1)
 
-        return jsonify(stocks)
+        # Prepare the response
+        response = []
+        for stock in stocks_rs_scores:
+            response.append({
+                "ticker": stock["ticker"],
+                "rs_score": stock.get("peer_rs_sector", "N/A")
+            })
+        
+        return jsonify(response)
+    
     except Exception as e:
         logging.error(f"Error fetching stocks for sector {sector}: {e}")
-        return jsonify([])  # Return an empty list on error
+        return jsonify({"error": "Error fetching data from the database."}), 500
+
 
 
 
