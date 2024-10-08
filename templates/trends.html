@@ -4,45 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sector & Industry Trends</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Sector & Industry Trends</h1>
-    <div id="sector-trends-chart" style="width:100%;height:600px;"></div>
+
+    <!-- Date Filter Inputs -->
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date">
+    
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date">
+
+    <button id="apply_filter">Apply Date Filter</button>
+
+    <canvas id="sectorChart" width="100%" height="40"></canvas>
 
     <script>
-        // Function to fetch sector trends data and plot the chart
-        function fetchSectorTrends() {
-            fetch('/api/sector-trends')
+        document.getElementById('apply_filter').addEventListener('click', function() {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+
+            // Fetch sector trends with date filters
+            let url = `/api/sector-trends?`;
+            if (startDate) url += `start_date=${startDate}&`;
+            if (endDate) url += `end_date=${endDate}&`;
+
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    const traces = [];
+                    // Clear previous chart
+                    document.getElementById('sectorChart').remove();
+                    const canvas = document.createElement('canvas');
+                    canvas.id = 'sectorChart';
+                    document.body.appendChild(canvas);
 
-                    // Prepare data for each sector
-                    for (const [sector, trendData] of Object.entries(data)) {
-                        traces.push({
-                            x: trendData.dates,
-                            y: trendData.rs_scores,
-                            mode: 'lines',
-                            name: sector  // Sector name in the legend
+                    // Prepare the chart data
+                    const labels = data[Object.keys(data)[0]].dates;
+                    const datasets = [];
+
+                    for (const sector in data) {
+                        datasets.push({
+                            label: sector,
+                            data: data[sector].rs_scores,
+                            fill: false,
+                            borderColor: getRandomColor(),
+                            tension: 0.1
                         });
                     }
 
-                    // Plotly chart setup
-                    const layout = {
-                        title: 'Sector RS Scores Over Time',
-                        xaxis: { title: 'Date' },
-                        yaxis: { title: 'RS Score' },
-                        legend: { title: { text: 'Sectors' } },
-                    };
-
-                    Plotly.newPlot('sector-trends-chart', traces, layout);
+                    // Create the new chart
+                    const ctx = document.getElementById('sectorChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    type: 'time',
+                                    time: {
+                                        unit: 'month'
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'RS Score'
+                                    }
+                                }
+                            }
+                        }
+                    });
                 })
                 .catch(error => console.error('Error fetching sector trends:', error));
-        }
+        });
 
-        // Fetch data and render the chart when the page loads
-        window.onload = fetchSectorTrends;
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
     </script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, Response
 from pymongo import MongoClient, errors
+from datetime import datetime
 import logging
 import os
 import csv
@@ -215,11 +216,31 @@ def view_ticker_data(ticker_symbol):
         return jsonify({"error": "Error fetching data from the database."}), 500
 
 # New route to fetch sector/industry trend data
+from datetime import datetime
+
 @app.route('/api/sector-trends', methods=['GET'])
 def get_sector_trends():
     try:
-        # Fetching sector trends from MongoDB
-        trends = list(sector_trends_collection.find({}, {'_id': 0}).sort("date", 1))
+        # Get date filters from the query parameters
+        start_date_str = request.args.get('start_date')
+        end_date_str = request.args.get('end_date')
+
+        # Convert to datetime objects if present, otherwise use default range (e.g., last 3 months)
+        if start_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        else:
+            start_date = datetime.now() - timedelta(days=90)  # Default to 3 months ago
+
+        if end_date_str:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        else:
+            end_date = datetime.now()  # Default to today
+
+        # Query sector trends within the date range
+        trends = list(sector_trends_collection.find(
+            {"date": {"$gte": start_date, "$lte": end_date}},
+            {'_id': 0}
+        ).sort("date", 1))
 
         # Preparing the response structure
         response = {}
@@ -238,6 +259,7 @@ def get_sector_trends():
     except Exception as e:
         logging.error(f"Error fetching sector trends: {e}")
         return jsonify({"error": "Error fetching sector trends"}), 500
+
 
 # New route for visualizing trends
 @app.route('/trends')
