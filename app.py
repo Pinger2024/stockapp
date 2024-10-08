@@ -277,23 +277,24 @@ def get_stocks_in_sector():
     try:
         # Get tickers for the selected sector from 'indicators' collection
         tickers_in_sector = indicators_collection.find({"sector": sector}, {"ticker": 1})
-        tickers_list = [ticker['ticker'] for ticker in tickers_in_sector]
+        tickers_list = list({ticker['ticker'] for ticker in tickers_in_sector})  # Use a set to remove duplicates
         
         if not tickers_list:
             return jsonify([])  # Return an empty list if no tickers found
         
         # Fetch RS scores from 'ohlcv_data' for those tickers
-        stocks_rs_scores = ohlcv_collection.find(
-            { "ticker": { "$in": tickers_list }, "peer_rs_sector": { "$exists": True } },
-            { "ticker": 1, "peer_rs_sector": 1 }
-        ).sort("peer_rs_sector", -1)
+        stocks_rs_scores = ohlcv_collection.aggregate([
+            { "$match": { "ticker": { "$in": tickers_list }, "peer_rs_sector": { "$exists": True } }},
+            { "$group": { "_id": "$ticker", "latest_rs_score": { "$first": "$peer_rs_sector" } }},
+            { "$sort": { "latest_rs_score": -1 } }  # Sort by RS score descending
+        ])
 
         # Prepare the response
         response = []
         for stock in stocks_rs_scores:
             response.append({
-                "ticker": stock["ticker"],
-                "rs_score": stock.get("peer_rs_sector", "N/A")
+                "ticker": stock["_id"],
+                "rs_score": stock.get("latest_rs_score", "N/A")
             })
         
         return jsonify(response)

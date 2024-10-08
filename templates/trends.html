@@ -130,14 +130,26 @@
                     });
 
                     // Populate the sector dropdown
-                    const sectorDropdown = document.getElementById('sector_dropdown');
-                    sectorDropdown.innerHTML = ''; // Clear previous options
-                    for (const sector in data) {
-                        const option = document.createElement('option');
-                        option.value = sector;
-                        option.textContent = sector;
-                        sectorDropdown.appendChild(option);
-                    }
+                    sectorDropdown.addEventListener('change', function() {
+    const selectedSector = sectorDropdown.value;
+    fetch(`/api/stocks-in-sector?sector=${selectedSector}`)
+        .then(response => response.json())
+        .then(stockData => {
+            const tbody = document.querySelector('#sector_table tbody');
+            tbody.innerHTML = ''; // Clear the table
+
+            stockData.forEach(stock => {
+                const rsScore = stock.rs_score !== "N/A" ? stock.rs_score : "No Data";
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${stock.ticker}</td>
+                    <td>${rsScore}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error fetching sector stocks:', error));
+});
 
                     // When a sector is selected, fetch and display stocks in the table
                     sectorDropdown.addEventListener('change', function() {
