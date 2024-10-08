@@ -4,7 +4,6 @@ import logging
 import os
 import csv
 import io
-import pymongo
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -216,30 +215,29 @@ def view_ticker_data(ticker_symbol):
         return jsonify({"error": "Error fetching data from the database."}), 500
 
 # New route to fetch sector/industry trend data
-@app.route('/sector-trends')
-def sector_trends():
-    if client is None:
-        return jsonify({"error": "Unable to connect to the database."}), 500
-
+@app.route('/api/sector-trends', methods=['GET'])
+def get_sector_trends():
     try:
-        # Fetch the latest sector and industry trends from the sector_trends collection
-        sector_trend_data = sector_trends_collection.find({}).sort("date", pymongo.DESCENDING).limit(50)
+        # Fetching sector trends from MongoDB
+        trends = list(sector_trends_collection.find({}, {'_id': 0}).sort("date", 1))
 
-        # Prepare data for JSON response
-        trends = []
-        for trend in sector_trend_data:
-            trends.append({
-                "date": trend["date"].strftime('%Y-%m-%d'),
-                "type": trend["type"],
-                "sector_or_industry": trend.get("sector") or trend.get("industry"),
-                "average_rs": trend["average_rs"]
-            })
+        # Preparing the response structure
+        response = {}
+        for trend in trends:
+            sector = trend.get('sector')
+            date = trend.get('date')
+            rs_score = trend.get('average_rs', None)
 
-        return jsonify(trends)
+            if sector and rs_score:
+                if sector not in response:
+                    response[sector] = {'dates': [], 'rs_scores': []}
+                response[sector]['dates'].append(date.strftime('%Y-%m-%d'))
+                response[sector]['rs_scores'].append(rs_score)
 
+        return jsonify(response)
     except Exception as e:
         logging.error(f"Error fetching sector trends: {e}")
-        return jsonify({"error": "Error fetching sector trends from the database."}), 500
+        return jsonify({"error": "Error fetching sector trends"}), 500
 
 # New route for visualizing trends
 @app.route('/trends')
