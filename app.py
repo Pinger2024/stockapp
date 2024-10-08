@@ -266,6 +266,26 @@ def get_sector_trends():
 def trends_page():
     return render_template('trends.html')
 
+# New route for visualizing sector stocks
+@app.route('/api/stocks-in-sector', methods=['GET'])
+def get_stocks_in_sector():
+    sector = request.args.get('sector')
+    if not sector:
+        return jsonify([])  # Return an empty list if no sector is provided
+
+    try:
+        # Find stocks in the specified sector, sorted by RS Score (sector)
+        stocks = list(ohlcv_collection.find(
+            {"sector": sector},
+            {"ticker": 1, "peer_rs_sector": 1, "_id": 0}
+        ).sort("peer_rs_sector", -1))  # Sort descending by sector RS
+
+        return jsonify(stocks)
+    except Exception as e:
+        logging.error(f"Error fetching stocks for sector {sector}: {e}")
+        return jsonify([])  # Return an empty list on error
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
