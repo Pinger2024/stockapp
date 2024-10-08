@@ -1,176 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sector & Industry Trends</title>
+<script>
+    document.getElementById('apply_filter').addEventListener('click', function() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
 
-    <!-- Load Chart.js and the date adapter -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+        let url = `/api/sector-trends?`;
+        if (startDate) url += `start_date=${startDate}&`;
+        if (endDate) url += `end_date=${endDate}&`;
 
-    <!-- Add some basic styling -->
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // Clear the previous chart
+                document.getElementById('sectorChart').remove();
+                const canvas = document.createElement('canvas');
+                canvas.id = 'sectorChart';
+                document.body.appendChild(canvas);
 
-</head>
-<body>
-    <h1>Sector & Industry Trends</h1>
+                // Prepare the chart data
+                const labels = data[Object.keys(data)[0]].dates;
+                const datasets = [];
 
-    <!-- Date Filter Inputs -->
-    <label for="start_date">Start Date:</label>
-    <input type="date" id="start_date" name="start_date">
-    
-    <label for="end_date">End Date:</label>
-    <input type="date" id="end_date" name="end_date">
+                for (const sector in data) {
+                    datasets.push({
+                        label: sector,
+                        data: data[sector].rs_scores,
+                        fill: false,
+                        borderColor: getRandomColor(),
+                        borderWidth: 2,
+                        tension: 0.1
+                    });
+                }
 
-    <button id="apply_filter">Apply Date Filter</button>
-
-    <br><br>
-
-    <!-- Dropdown to select a sector -->
-    <label for="sector_dropdown">Select Sector:</label>
-    <select id="sector_dropdown"></select>
-
-    <!-- Table to display stocks in the selected sector -->
-    <h3>Stocks in Sector</h3>
-    <table id="sector_table">
-        <thead>
-            <tr>
-                <th>Ticker</th>
-                <th>RS Score (Sector)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
-    <!-- Chart to show sector trends -->
-    <canvas id="sectorChart" width="100%" height="40"></canvas>
-
-    <script>
-        document.getElementById('apply_filter').addEventListener('click', function() {
-            const startDate = document.getElementById('start_date').value;
-            const endDate = document.getElementById('end_date').value;
-
-            // Fetch sector trends with date filters
-            let url = `/api/sector-trends?`;
-            if (startDate) url += `start_date=${startDate}&`;
-            if (endDate) url += `end_date=${endDate}&`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    // Clear previous chart
-                    document.getElementById('sectorChart').remove();
-                    const canvas = document.createElement('canvas');
-                    canvas.id = 'sectorChart';
-                    document.body.appendChild(canvas);
-
-                    // Prepare the chart data
-                    const labels = data[Object.keys(data)[0]].dates;
-                    const datasets = [];
-
-                    for (const sector in data) {
-                        datasets.push({
-                            label: sector,
-                            data: data[sector].rs_scores,
-                            fill: false,
-                            borderColor: getRandomColor(),
-                            borderWidth: 2,
-                            tension: 0.1
-                        });
-                    }
-
-                    // Create the new chart
-                    const ctx = document.getElementById('sectorChart').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: datasets
+                const ctx = document.getElementById('sectorChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Sector RS Scores Over Time'
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'right'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Sector RS Scores Over Time'
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'month'
                                 }
                             },
-                            scales: {
-                                x: {
-                                    type: 'time',
-                                    time: {
-                                        unit: 'month'
-                                    }
-                                },
-                                y: {
-                                    beginAtZero: false,
-                                    title: {
-                                        display: true,
-                                        text: 'RS Score'
-                                    }
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'RS Score'
                                 }
                             }
                         }
-                    });
-
-                    // Populate the sector dropdown
-                    const sectorDropdown = document.getElementById('sector_dropdown');
-                    sectorDropdown.innerHTML = ''; // Clear previous options
-                    for (const sector in data) {
-                        const option = document.createElement('option');
-                        option.value = sector;
-                        option.textContent = sector;
-                        sectorDropdown.appendChild(option);
                     }
+                });
 
-                    // When a sector is selected, fetch and display stocks in the table
-                    sectorDropdown.addEventListener('change', function() {
-                        const selectedSector = sectorDropdown.value;
-                        fetch(`/api/stocks-in-sector?sector=${selectedSector}`)
-                            .then(response => response.json())
-                            .then(stockData => {
-                                const tbody = document.querySelector('#sector_table tbody');
-                                tbody.innerHTML = ''; // Clear the table
+                // Populate the sector dropdown
+                const sectorDropdown = document.getElementById('sector_dropdown');
+                sectorDropdown.innerHTML = ''; // Clear previous options
+                for (const sector in data) {
+                    const option = document.createElement('option');
+                    option.value = sector;
+                    option.textContent = sector;
+                    sectorDropdown.appendChild(option);
+                }
 
-                                stockData.forEach(stock => {
-                                    const row = document.createElement('tr');
-                                    row.innerHTML = `
-                                        <td>${stock.ticker}</td>
-                                        <td>${stock.rs_score}</td>
-                                    `;
-                                    tbody.appendChild(row);
-                                });
-                            })
-                            .catch(error => console.error('Error fetching sector stocks:', error));
-                    });
-                })
-                .catch(error => console.error('Error fetching sector trends:', error));
-        });
+                // When a sector is selected, fetch and display stocks in the table
+                sectorDropdown.addEventListener('change', function() {
+                    const selectedSector = sectorDropdown.value;
 
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
+                    // Fetch stocks by sector
+                    fetch(`/api/stocks-in-sector?sector=${selectedSector}`)
+                        .then(response => response.json())
+                        .then(stockData => {
+                            const tbody = document.querySelector('#sector_table tbody');
+                            tbody.innerHTML = ''; // Clear the table
+
+                            stockData.forEach(stock => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${stock.ticker}</td>
+                                    <td>${stock.peer_rs_sector}</td>
+                                `;
+                                tbody.appendChild(row);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching sector stocks:', error));
+                });
+            })
+            .catch(error => console.error('Error fetching sector trends:', error));
+    });
+
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
         }
-    </script>
-</body>
-</html>
+        return color;
+    }
+</script>

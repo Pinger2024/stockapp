@@ -274,8 +274,8 @@ def get_stocks_in_sector():
         return jsonify([])  # Return an empty list if no sector is provided
 
     try:
-        # Find stocks in the specified sector, sorted by RS Score (sector)
-        stocks = list(ohlcv_collection.find(
+        # Make sure we are querying for the sector field correctly
+        stocks = list(indicators_collection.find(
             {"sector": sector},
             {"ticker": 1, "peer_rs_sector": 1, "_id": 0}
         ).sort("peer_rs_sector", -1))  # Sort descending by sector RS
@@ -284,6 +284,7 @@ def get_stocks_in_sector():
     except Exception as e:
         logging.error(f"Error fetching stocks for sector {sector}: {e}")
         return jsonify([])  # Return an empty list on error
+
 
 
 if __name__ == '__main__':
