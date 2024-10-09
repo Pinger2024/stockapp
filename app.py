@@ -313,7 +313,7 @@ def get_top_stocks():
         ])
 
         sector_data = []
-        
+
         for sector in top_sectors:
             sector_name = sector['_id']
             if not sector_name:
@@ -325,14 +325,17 @@ def get_top_stocks():
                 {"ticker": 1, "rs_score": 1}
             ).sort("rs_score", -1).limit(2))
 
-            # Convert ObjectId to string for JSON serialization and prepare the result
+            # Convert ObjectId to string for JSON serialization
             for stock in top_stocks:
                 stock['_id'] = str(stock['_id'])
+
+            # Collect tickers of the top stocks
+            top_stock_tickers = [stock['ticker'] for stock in top_stocks]
 
             sector_data.append({
                 "sector": sector_name,
                 "average_rs": sector['average_rs'],
-                "stocks": [stock['ticker'] for stock in top_stocks]
+                "stocks": ', '.join(top_stock_tickers)  # Display tickers separated by commas
             })
 
         return jsonify(sector_data)
@@ -340,6 +343,7 @@ def get_top_stocks():
     except Exception as e:
         logging.error(f"Error fetching top stocks: {e}")
         return jsonify({"error": "Error fetching top stocks"}), 500
+
 
 
 
