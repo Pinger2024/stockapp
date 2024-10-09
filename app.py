@@ -326,6 +326,10 @@ def get_top_stocks():
                 {"sector": sector_name}, {"ticker": 1, "rs_score": 1}
             ).sort("rs_score", -1).limit(2))
 
+            # Convert ObjectId to string for JSON serialization
+            for stock in top_stocks:
+                stock['_id'] = str(stock['_id'])
+
             sector_data.append({
                 "sector": sector_name,
                 "average_rs": sector.get('average_rs', 'N/A'),
@@ -337,6 +341,7 @@ def get_top_stocks():
     except Exception as e:
         logging.error(f"Error fetching top stocks: {e}")
         return jsonify({"error": "Error fetching top stocks"}), 500
+
 
 
 if __name__ == '__main__':
