@@ -260,7 +260,6 @@ def get_sector_trends():
         logging.error(f"Error fetching sector trends: {e}")
         return jsonify({"error": "Error fetching sector trends"}), 500
 
-
 # New route for visualizing trends
 @app.route('/trends')
 def trends_page():
@@ -328,8 +327,7 @@ def get_top_stocks():
         logging.error(f"Error fetching top stocks: {e}")
         return jsonify({"error": "Error fetching top stocks"}), 500
 
-
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+

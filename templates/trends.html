@@ -22,8 +22,8 @@
             padding: 8px;
             text-align: left;
         }
-        #top-stocks-container {
-            margin-top: 30px;
+        canvas {
+            margin-bottom: 30px;
         }
     </style>
 
@@ -58,14 +58,22 @@
         <tbody></tbody>
     </table>
 
+    <br>
+
     <!-- Chart to show sector trends -->
     <canvas id="sectorChart" width="100%" height="40"></canvas>
 
-    <!-- Top 3 Sectors and Their Strongest Stocks -->
-    <div id="top-stocks-container">
-        <h2>Top 3 Sectors and Their Strongest Stocks</h2>
-        <!-- The data for the top sectors and stocks will be rendered here -->
-    </div>
+    <h3>Top 3 Sectors and Their Strongest Stocks</h3>
+    <table id="top_sectors_table">
+        <thead>
+            <tr>
+                <th>Sector</th>
+                <th>Average RS Score</th>
+                <th>Strongest Stocks</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
     <script>
         document.getElementById('apply_filter').addEventListener('click', function() {
@@ -148,7 +156,7 @@
                         sectorDropdown.appendChild(option);
                     }
 
-                    // When a sector is selected, fetch and display stocks in the table
+                    // Fetch stocks in sector when selected
                     sectorDropdown.addEventListener('change', function() {
                         const selectedSector = sectorDropdown.value;
                         fetch(`/api/stocks-in-sector?sector=${selectedSector}`)
@@ -158,10 +166,11 @@
                                 tbody.innerHTML = ''; // Clear the table
 
                                 stockData.forEach(stock => {
+                                    const rsScore = stock.rs_score !== "N/A" ? stock.rs_score : "No Data";
                                     const row = document.createElement('tr');
                                     row.innerHTML = `
                                         <td>${stock.ticker}</td>
-                                        <td>${stock.peer_rs_sector || 'No Data'}</td>
+                                        <td>${rsScore}</td>
                                     `;
                                     tbody.appendChild(row);
                                 });
@@ -170,49 +179,27 @@
                     });
                 })
                 .catch(error => console.error('Error fetching sector trends:', error));
-        });
 
-        // Fetch and display top 3 sectors and their top 2 strongest stocks
-        function fetchTopStocks() {
+            // Fetch top sectors and their strongest stocks
             fetch('/top-stocks')
                 .then(response => response.json())
                 .then(data => {
-                    const container = document.getElementById('top-stocks-container');
-                    container.innerHTML = ''; // Clear previous data
+                    const topSectorsTable = document.querySelector('#top_sectors_table tbody');
+                    topSectorsTable.innerHTML = ''; // Clear the table
 
-                    data.forEach(sector => {
-                        // Create a section for each sector
-                        const sectorDiv = document.createElement('div');
-                        sectorDiv.innerHTML = `<h3>${sector.sector} (Avg RS: ${sector.average_rs.toFixed(2)})</h3>`;
-
-                        // Create a table for the top stocks in the sector
-                        const table = document.createElement('table');
-                        table.innerHTML = `
-                            <thead>
-                                <tr>
-                                    <th>Ticker</th>
-                                    <th>RS Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${sector.stocks.map(stock => `
-                                    <tr>
-                                        <td>${stock.ticker}</td>
-                                        <td>${stock.rs_score.toFixed(2)}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
+                    data.forEach(sectorData => {
+                        const strongestStocks = sectorData.stocks.map(stock => stock.ticker).join(', ');
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${sectorData.sector}</td>
+                            <td>${sectorData.average_rs}</td>
+                            <td>${strongestStocks}</td>
                         `;
-
-                        sectorDiv.appendChild(table);
-                        container.appendChild(sectorDiv);
+                        topSectorsTable.appendChild(row);
                     });
                 })
-                .catch(error => console.error('Error fetching top stocks:', error));
-        }
-
-        // Fetch the top sectors and stocks when the page loads
-        document.addEventListener('DOMContentLoaded', fetchTopStocks);
+                .catch(error => console.error('Error fetching top sectors:', error));
+        });
 
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
@@ -222,6 +209,9 @@
             }
             return color;
         }
+
+        // Initialize the data fetching on page load
+        document.getElementById('apply_filter').click();
     </script>
 </body>
 </html>
