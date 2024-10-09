@@ -305,35 +305,34 @@ def get_stocks_in_sector():
 @app.route('/top-stocks', methods=['GET'])
 def get_top_stocks():
     try:
-        # Find the top 3 strongest sectors based on average RS score
-        top_sectors = list(db.sector_trends.find(
-            {"sector": {"$exists": True}},  # Ensure the 'sector' field exists
-            {"sector": 1, "average_rs": 1}
-        ).sort("average_rs", -1).limit(3))
+        # Find the top 3 strongest sectors based on average RS score, ensuring sectors are unique
+        top_sectors = db.sector_trends.aggregate([
+            {"$group": {"_id": "$sector", "average_rs": {"$max": "$average_rs"}}},
+            {"$sort": {"average_rs": -1}},
+            {"$limit": 3}
+        ])
 
-        # If no sectors are found, return an empty response
-        if not top_sectors:
-            return jsonify([])
-
-        # For each top sector, find the top 2 stocks by RS score
         sector_data = []
+        
         for sector in top_sectors:
-            sector_name = sector.get('sector')
+            sector_name = sector['_id']
             if not sector_name:
                 continue  # Skip if sector_name is missing or None
 
+            # Find the top 2 stocks in the sector by RS score
             top_stocks = list(db.indicators.find(
-                {"sector": sector_name}, {"ticker": 1, "rs_score": 1}
+                {"sector": sector_name},
+                {"ticker": 1, "rs_score": 1}
             ).sort("rs_score", -1).limit(2))
 
-            # Convert ObjectId to string for JSON serialization
+            # Convert ObjectId to string for JSON serialization and prepare the result
             for stock in top_stocks:
                 stock['_id'] = str(stock['_id'])
 
             sector_data.append({
                 "sector": sector_name,
-                "average_rs": sector.get('average_rs', 'N/A'),
-                "stocks": top_stocks
+                "average_rs": sector['average_rs'],
+                "stocks": [stock['ticker'] for stock in top_stocks]
             })
 
         return jsonify(sector_data)
@@ -341,6 +340,7 @@ def get_top_stocks():
     except Exception as e:
         logging.error(f"Error fetching top stocks: {e}")
         return jsonify({"error": "Error fetching top stocks"}), 500
+
 
 
 
