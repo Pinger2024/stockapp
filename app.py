@@ -306,26 +306,38 @@ def get_stocks_in_sector():
 def get_top_stocks():
     try:
         # Find the top 3 strongest sectors based on average RS score
-        top_sectors = list(db.sector_trends.find({}, {"sector": 1, "average_rs": 1})
-                           .sort("average_rs", -1).limit(3))
+        top_sectors = list(db.sector_trends.find(
+            {"sector": {"$exists": True}},  # Ensure the 'sector' field exists
+            {"sector": 1, "average_rs": 1}
+        ).sort("average_rs", -1).limit(3))
+
+        # If no sectors are found, return an empty response
+        if not top_sectors:
+            return jsonify([])
 
         # For each top sector, find the top 2 stocks by RS score
         sector_data = []
         for sector in top_sectors:
-            sector_name = sector['sector']
-            top_stocks = list(db.indicators.find({"sector": sector_name}, {"ticker": 1, "rs_score": 1})
-                              .sort("rs_score", -1).limit(2))
+            sector_name = sector.get('sector')
+            if not sector_name:
+                continue  # Skip if sector_name is missing or None
+
+            top_stocks = list(db.indicators.find(
+                {"sector": sector_name}, {"ticker": 1, "rs_score": 1}
+            ).sort("rs_score", -1).limit(2))
+
             sector_data.append({
                 "sector": sector_name,
-                "average_rs": sector['average_rs'],
+                "average_rs": sector.get('average_rs', 'N/A'),
                 "stocks": top_stocks
             })
 
         return jsonify(sector_data)
-    
+
     except Exception as e:
         logging.error(f"Error fetching top stocks: {e}")
         return jsonify({"error": "Error fetching top stocks"}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
