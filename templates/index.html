@@ -3,198 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Data</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Stock RS Score List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pagination {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .pagination a {
+            margin: 0 5px;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: black;
+        }
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #4CAF50;
+        }
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Stock Data</h1>
-        <p>Total Unique Tickers in Database: <span id="totalTickers"></span></p>
 
-        <div class="row align-items-end mb-3">
-            <div class="col-md-3">
-                <label for="ticker" class="form-label">Search Ticker</label>
-                <input type="text" id="ticker" class="form-control">
-            </div>
-            <div class="col-md-2">
-                <label for="rs_score_min" class="form-label">RS Score Min</label>
-                <input type="number" id="rs_score_min" class="form-control">
-            </div>
-            <div class="col-md-2">
-                <label for="rs_score_max" class="form-label">RS Score Max</label>
-                <input type="number" id="rs_score_max" class="form-control">
-            </div>
-            <div class="col-md-2">
-                <label for="new_rs_high" class="form-label">New RS High</label>
-                <select id="new_rs_high" class="form-select">
-                    <option value="">Any</option>
-                    <option value="true">Yes</option>
-                    <option value="false">No</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label for="buy_signal" class="form-label">Buy Signal</label>
-                <select id="buy_signal" class="form-select">
-                    <option value="">Any</option>
-                    <option value="true">Yes</option>
-                    <option value="false">No</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label for="mansfield_rs_min" class="form-label">Mansfield RS Min</label>
-                <input type="number" id="mansfield_rs_min" class="form-control">
-            </div>
-            <div class="col-md-2">
-                <label for="stage" class="form-label">Stage</label>
-                <select id="stage" class="form-select">
-                    <option value="">Any</option>
-                    <option value="1">Stage 1 - Accumulation</option>
-                    <option value="2">Stage 2 - Uptrend</option>
-                    <option value="3">Stage 3 - Distribution</option>
-                    <option value="4">Stage 4 - Decline</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button id="filterBtn" class="btn btn-primary">Filter</button>
-                <button id="resetBtn" class="btn btn-secondary">Reset</button>
-            </div>
-        </div>
+<h1>Stock RS Scores</h1>
+<p>Total Stocks: <span id="totalTickers">0</span></p>
 
-        <!-- New Button for downloading unique tickers -->
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <button id="downloadBtn" class="btn btn-success">Download Unique Tickers</button>
-            </div>
-        </div>
+<table>
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>RS Score</th>
+        </tr>
+    </thead>
+    <tbody id="stockTableBody"></tbody>
+</table>
 
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <button id="downloadNoSectorBtn" class="btn btn-warning">Download Tickers with No Sector</button>
-            </div>
-        </div>
-        
-        <script>
-            document.getElementById('downloadNoSectorBtn').addEventListener('click', () => {
-                window.location.href = '/download-no-sector';
-            });
-        </script>
-        
+<div class="pagination" id="pagination"></div>
 
-        <h2>Super Stocks to Check Out!</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Ticker</th>
-                    <th>RS Score</th>
-                    <th>Minervini Score</th>
-                    <th>New RS High</th>
-                    <th>Buy Signal</th>
-                    <th>Mansfield RS</th>
-                    <th>Stage</th>
-                </tr>
-            </thead>
-            <tbody id="stocksTableBody"></tbody>
-        </table>
+<script>
+    let currentPage = 1;
+    let totalPages = 1;
 
-        <nav aria-label="Page navigation">
-            <ul class="pagination" id="pagination"></ul>
-        </nav>
-    </div>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchStocks(currentPage);
+    });
 
-    <script>
-        let currentPage = 1;
-        let totalPages = 1;
+    function fetchStocks(page) {
+        fetch(`/api/stocks?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                displayStocks(data.stocks);
+                updatePagination(data.current_page, data.total_pages);
+                document.getElementById('totalTickers').textContent = data.total_results;
+                currentPage = data.current_page;
+                totalPages = data.total_pages;
+            })
+            .catch(error => console.error('Error:', error));
+    }
 
-        function fetchStocks(page = 1) {
-            const queryParams = new URLSearchParams({
-                page: page,
-                ticker: document.getElementById('ticker').value,
-                rs_score_min: document.getElementById('rs_score_min').value,
-                rs_score_max: document.getElementById('rs_score_max').value,
-                new_rs_high: document.getElementById('new_rs_high').value,
-                buy_signal: document.getElementById('buy_signal').value,
-                mansfield_rs_min: document.getElementById('mansfield_rs_min').value,
-                stage: document.getElementById('stage').value
-            });
+    function displayStocks(stocks) {
+        const tableBody = document.getElementById('stockTableBody');
+        tableBody.innerHTML = '';
+        stocks.forEach(stock => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${stock.ticker}</td>
+                <td>${stock.rs_score}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
 
-            fetch(`/api/stocks?${queryParams}`)
-                .then(response => response.json())
-                .then(data => {
-                    displayStocks(data.stocks);
-                    updatePagination(data.current_page, data.total_pages);
-                    document.getElementById('totalTickers').textContent = data.total_tickers;
-                    currentPage = data.current_page;
-                    totalPages = data.total_pages;
-                })
-                .catch(error => console.error('Error:', error));
-        }
+    function updatePagination(currentPage, totalPages) {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
 
-        function displayStocks(stocks) {
-            const tableBody = document.getElementById('stocksTableBody');
-            tableBody.innerHTML = '';
-            stocks.forEach(stock => {
-                const row = tableBody.insertRow();
-                row.innerHTML = `
-                    <td>${stock.ticker}</td>
-                    <td>${stock.rs_score ? stock.rs_score.toFixed(2) : 'N/A'}</td>
-                    <td>${stock.minervini_criteria && stock.minervini_criteria.minervini_score ? stock.minervini_criteria.minervini_score : 'N/A'}</td>
-                    <td>${stock.new_rs_high ? 'Yes' : 'No'}</td>
-                    <td>${stock.buy_signal ? 'Yes' : 'No'}</td>
-                    <td>${stock.mansfield_rs ? stock.mansfield_rs.toFixed(2) : 'N/A'}</td>
-                    <td>${stock.stage || 'N/A'}</td>
-                `;
-            });
-        }
-
-        function updatePagination(currentPage, totalPages) {
-            const pagination = document.getElementById('pagination');
-            pagination.innerHTML = '';
-
-            const range = 2;
-            const start = Math.max(1, currentPage - range);
-            const end = Math.min(totalPages, currentPage + range);
-
-            if (currentPage > 1) {
-                addPageItem(pagination, currentPage - 1, '«');
-            }
-
-            for (let i = start; i <= end; i++) {
-                addPageItem(pagination, i, i, i === currentPage);
-            }
-
-            if (currentPage < totalPages) {
-                addPageItem(pagination, currentPage + 1, '»');
-            }
-        }
-
-        function addPageItem(parent, page, text, active = false) {
-            const li = document.createElement('li');
-            li.className = `page-item${active ? ' active' : ''}`;
+        for (let page = 1; page <= totalPages; page++) {
             const a = document.createElement('a');
-            a.className = 'page-link';
+            a.textContent = page;
             a.href = '#';
-            a.textContent = text;
-            a.onclick = (e) => {
-                e.preventDefault();
+            a.classList.add(page === currentPage ? 'active' : '');
+            a.addEventListener('click', function(event) {
+                event.preventDefault();
                 fetchStocks(page);
-            };
-            li.appendChild(a);
-            parent.appendChild(li);
+            });
+            pagination.appendChild(a);
         }
+    }
+</script>
 
-        document.getElementById('filterBtn').addEventListener('click', () => fetchStocks(1));
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            document.querySelectorAll('input, select').forEach(el => el.value = '');
-            fetchStocks(1);
-        });
-
-        // Handle download button click for unique tickers
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            window.location.href = '/download-tickers';
-        });
-
-        // Initial fetch
-        fetchStocks();
-    </script>
 </body>
 </html>
