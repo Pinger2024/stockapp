@@ -9,22 +9,20 @@ import io
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize Flask app
-app = Flask(__name__)
-
 # MongoDB connection setup
 try:
-    mongo_uri = os.environ.get('MONGO_URI', 'mongodb://localhost:27017')
+    mongo_uri = os.environ.get('MONGO_URI', 'mongodb://mongodb-9iyq:27017')
     client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
     db = client['StockData']
     ohlcv_collection = db['ohlcv_data']
     indicators_collection = db['indicators']
-    sector_trends_collection = db['sector_trends']
+    sector_trends_collection = db['sector_trends']  # Add sector trends collection
+    # Test the connection
     client.admin.command('ping')
     logging.info("Successfully connected to MongoDB.")
 except errors.ServerSelectionTimeoutError as err:
     logging.error(f"Error connecting to MongoDB: {err}")
-    client = None
+    client = None  # Set client to None if connection fails
 
 # Helper functions for pagination and error handling
 def handle_pagination(query, collection, page, items_per_page):
