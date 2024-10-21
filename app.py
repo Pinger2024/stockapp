@@ -9,6 +9,9 @@ import io
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 
+# Initialize Flask app
+app = Flask(__name__)  # <-- This should come before route definitions
+
 # MongoDB connection setup
 try:
     mongo_uri = os.environ.get('MONGO_URI', 'mongodb://mongodb-9iyq:27017')
